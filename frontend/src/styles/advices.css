@@ -1,0 +1,98 @@
+body{
+    background: linear-gradient(to right, #021c2b, #0d3a52);
+}
+
+:root {
+  --bg-dark:    #0a1628;
+  --bg-card:    #0f1e35;
+  --bg-card2:   #111f36;
+  --green:      #C2D96F;
+  --green-dim:  #b6cf5d;
+  --purple:     #7c6af7;
+  --purple-dim: #6355d4;
+  --white:      #f0f4ff;
+  --muted:      #7a8fae;
+  --border:     rgba(255,255,255,0.07);
+  --font-head:  'Istok Web', sans-serif;
+  --font-body:  'DM Sans', sans-serif;
+  --radius:     14px;
+  --radius-lg:  20px;
+  --shadow:     0 8px 32px rgba(0,0,0,0.35);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ══════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════ */
+.footer {
+  /* background: linear-gradient(to right, #021c2b, #0d3a52); */
+  border-top: 1px solid var(--border);
+  padding: 64px 5vw 28px;
+}
+.footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.6fr repeat(4, 1fr);
+  gap: 40px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--border);
+}
+.footer__logo {
+  font-size: 1.2rem;
+  display: inline-flex;
+  margin-bottom: 12px;
+}
+.footer__tagline {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.footer__col-heading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+.footer__link {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+  transition: color var(--transition), transform var(--transition);
+}
+.footer__link:hover {
+  color: var(--white);
+  transform: translateX(3px);
+}
+.footer__bottom {
+  max-width: 1200px;
+  margin: 24px auto 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .footer__inner {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .footer__brand { grid-column: 1 / -1; }
+}
+
+@media (max-width: 640px) {
+  .footer__inner { grid-template-columns: 1fr 1fr; }
+}
+
+
+.footer__logo-img {
+  width: 140px; /* adjust as needed */
+  height: auto;
+  display: block;
+}
+

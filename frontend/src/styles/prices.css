@@ -1,0 +1,595 @@
+/* ===== PRICING PAGE ===== */
+@import url('https://fonts.googleapis.com/css2?family=Istok+Web:wght@400;500;600;700&family=Syne:wght@600;700&display=swap');
+
+.pricing-container {
+  font-family: 'Istok Web', sans-serif;
+  background: #fafbfc;
+  min-height: 100vh;
+  text-align: center;
+  overflow-x: hidden;
+}
+
+/* Hero */
+.pricing-hero {
+  background: linear-gradient(135deg, #0b182a 0%, #132a42 100%);
+  color: white;
+  padding: 0px 20px 260px;
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.pricing-hero-title {
+  font-size: clamp(1.8rem, 5vw, 2.2rem);
+  font-weight: 700;
+  margin: 0 0 12px;
+  letter-spacing: -0.5px;
+  max-width: 90%;
+  line-height: 1.2;
+}
+
+.hero-desc {
+  font-size: clamp(0.85rem, 2vw, 0.9rem);
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  font-weight: 400;
+  max-width: 90%;
+}
+
+/* Cards wrapper */
+.pricing-cards-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: -380px;
+  padding: 0 20px 60px;
+  width: 100%;
+}
+
+.pricing-cards {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Base card */
+.card {
+  flex: 1;
+  border-radius: 20px;
+  overflow: visible;
+  position: relative;
+  background: white;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-width: 0;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+.free-card {
+  background: #ffffff;
+  border: 1px solid #e8ecf0;
+}
+
+/* Featured card */
+.featured-card {
+  background: white;
+  border: 3px solid #000F1B;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(13, 58, 82, 0.2);
+}
+
+.badge {
+  background: #000F1B;
+  color: white;
+  font-size: clamp(0.7rem, 2vw, 0.8rem);
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 17px 17px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.5px;
+  flex-wrap: wrap;
+}
+
+.card-inner {
+  padding: clamp(24px, 4vw, 32px) clamp(20px, 4vw, 28px) clamp(28px, 4vw, 36px);
+}
+
+.featured-inner {
+  padding: clamp(20px, 4vw, 28px) clamp(20px, 4vw, 28px) clamp(28px, 4vw, 36px);
+}
+
+.plan-icon {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+}
+
+.plan-name {
+  font-size: clamp(1.5rem, 4vw, 1.8rem);
+  font-weight: 700;
+  color: #0d2535;
+  margin: 0 0 8px;
+}
+
+.featured-name {
+  color: #0d3a52;
+}
+
+.plan-description {
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
+  color: #666;
+  margin: 0 0 16px;
+  padding: 0 5px;
+}
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.price-amount {
+  font-size: clamp(2.5rem, 6vw, 3rem);
+  font-weight: 800;
+  color: #0d2535;
+}
+
+.price-period {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: #888;
+  font-weight: 400;
+}
+
+.savings-badge {
+  background: #e8f4e8;
+  color: #2e7d32;
+  font-size: clamp(0.7rem, 1.5vw, 0.75rem);
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.card-divider {
+  height: 1px;
+  background: #e8ecf0;
+  margin: 20px 0;
+}
+
+.featured-divider {
+  background: #d8e2e8;
+}
+
+/* Features */
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 28px;
+  text-align: left;
+}
+
+.features-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: clamp(0.85rem, 1.8vw, 0.9rem);
+  color: #333;
+  padding: 8px 0;
+  font-weight: 400;
+}
+
+.features-list li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.features-list li strong {
+  font-weight: 700;
+  color: #0d2535;
+}
+
+/* Buttons */
+.btn-outline {
+  width: 100%;
+  padding: clamp(12px, 3vw, 14px) clamp(16px, 3vw, 20px);
+  border-radius: 30px;
+  border: 2px solid #0d3a52;
+  background: transparent;
+  color: #0d3a52;
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  font-weight: 600;
+  font-family: 'Istok Web', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.btn-outline:hover {
+  background: #0d3a52;
+  color: white;
+}
+
+.free-btn {
+  margin-bottom: 12px;
+}
+
+.no-card-note {
+  font-size: clamp(0.7rem, 1.5vw, 0.75rem);
+  color: #999;
+  margin: 8px 0 0;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: clamp(14px, 3vw, 16px) clamp(16px, 3vw, 20px);
+  border-radius: 30px;
+  border: none;
+  background: linear-gradient(135deg, #0d3a52, #1a5272);
+  color: white;
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  font-weight: 600;
+  font-family: 'Istok Web', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(13, 58, 82, 0.4);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 24px rgba(13, 58, 82, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Trust section */
+.trust-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(20px, 5vw, 48px);
+  padding: 20px 20px 40px;
+  flex-wrap: wrap;
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #4a7fa5;
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
+  font-weight: 500;
+}
+
+/* FAQ Section */
+.pricing-faq-section {
+  background: white;
+  padding: clamp(40px, 8vw, 60px) clamp(20px, 5vw, 40px) clamp(60px, 10vw, 80px);
+  text-align: center;
+  width: 100%;
+}
+
+.faq-title {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  color: #0d2535;
+  margin: 0 0 8px;
+  padding: 0 15px;
+}
+
+.faq-subtitle {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: #666;
+  margin: 0 0 48px;
+  padding: 0 15px;
+}
+
+.faq-link {
+  color: #0d3a52;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.faq-link:hover {
+  text-decoration: underline;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 48px;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: left;
+  padding: 0 15px;
+}
+
+.pricing-faq-item {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  border-bottom: 1px solid #e0e6eb;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.pricing-faq-item:last-child,
+.pricing-faq-item:nth-last-child(2):nth-child(odd) {
+  border-bottom: none;
+}
+
+.faq-question-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pricing-faq-item:hover .faq-question {
+  color: #0d3a52;
+}
+
+.faq-question {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: #333;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.faq-open .faq-question {
+  color: #0d3a52;
+  font-weight: 600;
+}
+
+.faq-answer {
+  font-size: clamp(0.85rem, 1.8vw, 0.9rem);
+  color: #555;
+  line-height: 1.6;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+/* Tablet Responsive */
+@media (max-width: 992px) {
+  .pricing-cards-wrapper {
+    margin-top: -350px;
+  }
+  
+  .pricing-cards {
+    gap: 16px;
+  }
+  
+  .faq-grid {
+    gap: 0 32px;
+  }
+}
+
+/* Mobile Landscape & Large Mobile */
+@media (max-width: 768px) {
+  .pricing-hero {
+    padding: 50px 20px 140px;
+    min-height: 85vh;
+  }
+  
+  .pricing-cards-wrapper {
+    margin-top: -320px;
+    padding: 0 16px 40px;
+  }
+  
+  .pricing-cards {
+    flex-direction: column;
+    gap: 20px;
+    max-width: 500px;
+  }
+  
+  .card {
+    width: 100%;
+  }
+  
+  .card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .btn-outline,
+  .btn-primary {
+    white-space: normal;
+  }
+  
+  .faq-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+    max-width: 600px;
+  }
+  
+  .pricing-faq-item:nth-last-child(2) {
+    border-bottom: 1px solid #e0e6eb;
+  }
+  
+  .trust-section {
+    gap: 20px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .pricing-hero {
+    padding: 40px 16px 120px;
+    min-height: 80vh;
+  }
+  
+  .pricing-hero-title {
+    font-size: 1.6rem;
+    max-width: 100%;
+  }
+  
+  .hero-desc {
+    font-size: 0.85rem;
+  }
+  
+  .pricing-cards-wrapper {
+    margin-top: -280px;
+    padding: 0 12px 30px;
+  }
+  
+  .pricing-cards {
+    gap: 16px;
+  }
+  
+  .card-inner {
+    padding: 20px 16px 24px;
+  }
+  
+  .featured-inner {
+    padding: 18px 16px 24px;
+  }
+  
+  .badge {
+    font-size: 0.65rem;
+    padding: 8px 12px;
+    gap: 4px;
+  }
+  
+  .plan-name {
+    font-size: 1.4rem;
+  }
+  
+  .plan-description {
+    font-size: 0.8rem;
+  }
+  
+  .price-amount {
+    font-size: 2.2rem;
+  }
+  
+  .price-period {
+    font-size: 0.85rem;
+  }
+  
+  .features-list li {
+    font-size: 0.8rem;
+    padding: 6px 0;
+  }
+  
+  .features-list li svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .btn-outline,
+  .btn-primary {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+  }
+  
+  .faq-title {
+    font-size: 1.3rem;
+  }
+  
+  .faq-subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 32px;
+  }
+  
+  .pricing-faq-item {
+    padding: 16px 0;
+  }
+  
+  .faq-question {
+    font-size: 0.85rem;
+  }
+  
+  .faq-answer {
+    font-size: 0.8rem;
+  }
+  
+  .trust-item {
+    font-size: 0.75rem;
+  }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 360px) {
+  .pricing-hero {
+    padding: 30px 12px 100px;
+  }
+  
+  .pricing-hero-title {
+    font-size: 1.4rem;
+  }
+  
+  .pricing-cards-wrapper {
+    margin-top: -250px;
+  }
+  
+  .card-inner {
+    padding: 18px 12px 20px;
+  }
+  
+  .plan-name {
+    font-size: 1.3rem;
+  }
+  
+  .price-amount {
+    font-size: 2rem;
+  }
+  
+  .badge {
+    font-size: 0.6rem;
+  }
+  
+  .features-list li {
+    font-size: 0.75rem;
+  }
+  
+  .faq-question-row {
+    gap: 8px;
+  }
+}
+
+/* Handle very large screens */
+@media (min-width: 1400px) {
+  .pricing-cards {
+    max-width: 1200px;
+  }
+  
+  .faq-grid {
+    max-width: 1000px;
+  }
+}
+
+/* Accessibility and touch improvements */
+@media (hover: none) {
+  .card:hover {
+    transform: none;
+  }
+  
+  .btn-primary:hover,
+  .btn-outline:hover {
+    transform: none;
+  }
+}
+
+/* Ensure proper display on landscape orientation */
+@media (orientation: landscape) and (max-height: 600px) {
+  .pricing-hero {
+    min-height: 500px;
+    padding: 40px 20px 120px;
+  }
+  
+  .pricing-cards-wrapper {
+    margin-top: -300px;
+  }
+}
