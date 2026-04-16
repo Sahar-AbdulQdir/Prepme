@@ -8,7 +8,7 @@ import Tool from "./pages/Tool";
 import PricingPage from "./pages/prices";
 import Landing from "./pages/landing";
 import Advices from "./pages/advices";
-import PrepmeDashboard from "./pages/Home";
+// import PrepmeDashboard from "./pages/Home";
 import HomePage from "./pages/home2";
 import ResumeBuilder from "./pages/resume";
 import Tour from "./components/Tour";
@@ -180,7 +180,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/home"
           element={
             <ProtectedRoute user={user}>
@@ -191,7 +191,7 @@ export default function App() {
               />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
           path="/tool"
           element={

@@ -1,6 +1,6 @@
 // components/Tour.jsx - Fixed version without onafterstart
 import { useEffect, useRef } from "react";
-import introJs from "intro.js";
+// import introJs from "intro.js";
 import "intro.js/introjs.css";
 import Mascot from "../assets/Images/mascot2.png";
 

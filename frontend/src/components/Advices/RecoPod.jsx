@@ -440,16 +440,16 @@ const styles = `
   }
 `;
 
-const TIPS = [
-  "Research the company deeply",
-  "Practice STAR method answers",
-  "Prepare 5 smart questions",
-  "Dress one level above the role",
-  "Arrive 10 minutes early",
-  "Follow up with a thank-you note",
-  "Master your elevator pitch",
-  "Know your salary expectations",
-];
+// const TIPS = [
+//   "Research the company deeply",
+//   "Practice STAR method answers",
+//   "Prepare 5 smart questions",
+//   "Dress one level above the role",
+//   "Arrive 10 minutes early",
+//   "Follow up with a thank-you note",
+//   "Master your elevator pitch",
+//   "Know your salary expectations",
+// ];
 
 const ADVICE = [
   {

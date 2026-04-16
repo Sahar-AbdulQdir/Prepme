@@ -1,9 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/LandingNavbar.css";
 import Logo from "../../assets/Images/Plogo.png";
-import { useState } from "react";
-
 
 const LandingNavbar = ({ user }) => {
   const navigate = useNavigate();
@@ -12,11 +10,11 @@ const LandingNavbar = ({ user }) => {
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth" });
-    setIsMenuOpen(false); // Close menu after navigation
+    setIsMenuOpen(false);
   };
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+    setIsMenuOpen((prev) => !prev);
   };
 
   const handleNavigate = (path) => {
@@ -27,8 +25,8 @@ const LandingNavbar = ({ user }) => {
   return (
     <nav className="L-navbar">
       {/* Mobile Menu Button */}
-      <button 
-        className={`L-hamburger ${isMenuOpen ? 'active' : ''}`}
+      <button
+        className={`L-hamburger ${isMenuOpen ? "active" : ""}`}
         onClick={toggleMenu}
         aria-label="Menu"
       >
@@ -39,18 +37,21 @@ const LandingNavbar = ({ user }) => {
 
       {/* Left Links - Desktop */}
       <div className="L-nav-left">
-        <a onClick={() => scrollToSection("how-it-works")}>
+        <button onClick={() => scrollToSection("how-it-works")}>
           How it works
-        </a>
-        <a onClick={() => scrollToSection("MainFeatures")}>
+        </button>
+
+        <button onClick={() => scrollToSection("MainFeatures")}>
           Features
-        </a>
-        <a onClick={() => scrollToSection("features")}>
+        </button>
+
+        <button onClick={() => scrollToSection("features")}>
           Industries Covered
-        </a>
-        <a onClick={() => scrollToSection("LandingPrices")}>
+        </button>
+
+        <button onClick={() => scrollToSection("LandingPrices")}>
           Pricing
-        </a>
+        </button>
       </div>
 
       {/* Center Logo */}
@@ -66,48 +67,68 @@ const LandingNavbar = ({ user }) => {
       <div className="L-nav-right">
         {!user ? (
           <>
-            <a className="L-login-link" onClick={() => handleNavigate("/login")}>
+            <button
+              className="L-login-link"
+              onClick={() => handleNavigate("/login")}
+            >
               Log In
-            </a>
-            <button className="L-glow-on-hover L-signup" onClick={() => handleNavigate("/login")}>
+            </button>
+
+            <button
+              className="L-glow-on-hover L-signup"
+              onClick={() => handleNavigate("/login")}
+            >
               Sign Up
             </button>
           </>
         ) : (
-          <button className="L-dashboard-btn" onClick={() => handleNavigate("/tool")}>
+          <button
+            className="L-dashboard-btn"
+            onClick={() => handleNavigate("/tool")}
+          >
             Dashboard
           </button>
         )}
       </div>
 
       {/* Mobile Menu Overlay */}
-      <div className={`L-mobile-menu ${isMenuOpen ? 'open' : ''}`}>
+      <div className={`L-mobile-menu ${isMenuOpen ? "open" : ""}`}>
         <div className="L-mobile-menu-content">
-          <a onClick={() => scrollToSection("how-it-works")}>
+          <button onClick={() => scrollToSection("how-it-works")}>
             How it works
-          </a>
-          <a onClick={() => scrollToSection("MainFeatures")}>
+          </button>
+
+          <button onClick={() => scrollToSection("MainFeatures")}>
             Features
-          </a>
-          <a onClick={() => scrollToSection("features")}>
+          </button>
+
+          <button onClick={() => scrollToSection("features")}>
             Industries Covered
-          </a>
-          <a onClick={() => scrollToSection("LandingPrices")}>
+          </button>
+
+          <button onClick={() => scrollToSection("LandingPrices")}>
             Pricing
-          </a>
-          
+          </button>
+
           <div className="L-mobile-auth">
             {!user ? (
               <>
-                <a onClick={() => handleNavigate("/login")}>
+                <button onClick={() => handleNavigate("/login")}>
                   Log In
-                </a>
-                <button className="L-glow-on-hover L-mobile-signup" onClick={() => handleNavigate("/login")}>
+                </button>
+
+                <button
+                  className="L-glow-on-hover L-mobile-signup"
+                  onClick={() => handleNavigate("/login")}
+                >
                   Sign Up
                 </button>
               </>
             ) : (
-              <button className="L-mobile-dashboard" onClick={() => handleNavigate("/tool")}>
+              <button
+                className="L-mobile-dashboard"
+                onClick={() => handleNavigate("/tool")}
+              >
                 Dashboard
               </button>
             )}

@@ -48,6 +48,16 @@ const faqs = [
 export default function PricingPage({ onNavigate }) {
   const [openFaq, setOpenFaq] = useState(null);
 
+  const handleContactClick = (e) => {
+    e.preventDefault();
+    // Navigate to contact page or open contact modal
+    if (onNavigate) {
+      onNavigate('contact');
+    }
+    // Or if you have a different navigation method:
+    // window.location.href = '/contact';
+  };
+
   return (
     <div className="pricing-container">
                <SplashCursor
@@ -164,7 +174,27 @@ export default function PricingPage({ onNavigate }) {
       {/* FAQ */}
       <div className="pricing-faq-section">
         <h2 className="faq-title">Frequently asked questions</h2>
-        <p className="faq-subtitle">Can't find what you're looking for? <a href="#" className="faq-link">Contact our support team</a></p>
+        <p className="faq-subtitle">
+          Can't find what you're looking for?{' '}
+          {/* Option 1: Use a button styled as a link */}
+          <button 
+            onClick={handleContactClick}
+            className="faq-link"
+          >
+            Contact our support team
+          </button>
+          
+          {/* Option 2: Use a valid href (uncomment if you have a contact page) */}
+          {/* <a href="/contact" className="faq-link">Contact our support team</a> */}
+          
+          {/* Option 3: Use a button with navigation (uncomment if using React Router) */}
+          {/* <button 
+            onClick={() => navigate('/contact')}
+            className="faq-link"
+          >
+            Contact our support team
+          </button> */}
+        </p>
 
         <div className="faq-grid">
           {faqs.map((item, i) => (
