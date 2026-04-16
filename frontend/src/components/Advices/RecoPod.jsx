@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { PiRankingFill } from "react-icons/pi";
 import PodImg from "../../assets/Images/Pod_Suggestion.png";
 

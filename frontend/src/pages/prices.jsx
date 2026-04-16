@@ -26,13 +26,6 @@ const SparklesIcon = () => (
   </svg>
 );
 
-const InfinityIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M6 10C6 7.79086 7.79086 6 10 6C12.2091 6 14 7.79086 14 10C14 12.2091 12.2091 14 10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M14 10C14 12.2091 12.2091 14 10 14C7.79086 14 6 12.2091 6 10C6 7.79086 7.79086 6 10 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
-
 const faqs = [
   {
     q: "How does this website help me prepare for interviews?",

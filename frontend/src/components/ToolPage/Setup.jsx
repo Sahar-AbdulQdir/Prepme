@@ -713,7 +713,7 @@ export default function Setup({ onStart, loading, onSessionComplete }) {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const values = { field, level, interviewType };
+  // const values = { field, level, interviewType };
   const setters = { field: setField, level: setLevel, interviewType: setInterviewType };
 
   const activeStep = !field ? 0 : !level ? 1 : !interviewType ? 2 : 3;

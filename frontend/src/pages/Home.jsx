@@ -642,19 +642,19 @@ const styles = `
   }
 `;
 
-const skills = [
-  { name: "System Design", pct: 78, color: "linear-gradient(90deg, #7c6af7, #9d90ff)" },
-  { name: "Data Structures", pct: 65, color: "linear-gradient(90deg, #6355d4, #7c6af7)" },
-  { name: "Behavioral", pct: 91, color: "linear-gradient(90deg, #b6cf5d, #C2D96F)" },
-  { name: "SQL & Databases", pct: 55, color: "linear-gradient(90deg, #7c6af7, #b6cf5d)" },
-];
+// const skills = [
+//   { name: "System Design", pct: 78, color: "linear-gradient(90deg, #7c6af7, #9d90ff)" },
+//   { name: "Data Structures", pct: 65, color: "linear-gradient(90deg, #6355d4, #7c6af7)" },
+//   { name: "Behavioral", pct: 91, color: "linear-gradient(90deg, #b6cf5d, #C2D96F)" },
+//   { name: "SQL & Databases", pct: 55, color: "linear-gradient(90deg, #7c6af7, #b6cf5d)" },
+// ];
 
-const leaderboard = [
-  { rank: 1, name: "Arya S.", score: 9840, color: "#7c6af7", rankClass: "gold" },
-  { rank: 2, name: "David K.", score: 9210, color: "#6355d4", rankClass: "silver" },
-  { rank: 3, name: "Mia L.", score: 8870, color: "#b6cf5d", rankClass: "bronze" },
-  { rank: 7, name: "You", score: 7430, color: "#C2D96F", you: true },
-];
+// const leaderboard = [
+//   { rank: 1, name: "Arya S.", score: 9840, color: "#7c6af7", rankClass: "gold" },
+//   { rank: 2, name: "David K.", score: 9210, color: "#6355d4", rankClass: "silver" },
+//   { rank: 3, name: "Mia L.", score: 8870, color: "#b6cf5d", rankClass: "bronze" },
+//   { rank: 7, name: "You", score: 7430, color: "#C2D96F", you: true },
+// ];
 
 const sessions = [
   { icon: "🎙️", name: "System Design Interview", type: "Mock Interview", score: 84, progress: 84, color: "#7c6af7", bg: "rgba(124,106,247,0.12)", time: "2h ago" },

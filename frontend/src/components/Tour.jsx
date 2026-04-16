@@ -1,12 +1,12 @@
 // components/Tour.jsx - Fixed version without onafterstart
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import introJs from "intro.js";
 import "intro.js/introjs.css";
 import Mascot from "../assets/Images/mascot2.png";
 
 export default function Tour({ run, setRun }) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [totalSteps, setTotalSteps] = useState(0);
+  // const [ setCurrentStep] = useState(0);
+  // const [ setTotalSteps] = useState(0);
   const introRef = useRef(null);
   const stepsRef = useRef([]);
 
@@ -51,11 +51,11 @@ export default function Tour({ run, setRun }) {
         } else {
           console.log(`Setting ${validSteps.length} tour steps`);
           stepsRef.current = validSteps;
-          setTotalSteps(validSteps.length);
-          setCurrentStep(0); // Set initial step to 0
+          // setTotalSteps(validSteps.length);
+          // setCurrentStep(0); 
           
           setTimeout(() => {
-            startIntroTour(validSteps);
+            // startIntroTour(validSteps);
           }, 100);
         }
       };
@@ -64,66 +64,66 @@ export default function Tour({ run, setRun }) {
     }
   }, [run, setRun]);
 
-  const startIntroTour = (steps) => {
-    const intro = introJs();
+  // const startIntroTour = (steps) => {
+  //   const intro = introJs();
     
-    intro.setOptions({
-      steps: steps,
-      showProgress: true,
-      showBullets: false,
-      showStepNumbers: false,
-      exitOnOverlayClick: false,
-      exitOnEsc: true,
-      disableInteraction: false,
-      scrollToElement: true,
-      overlayOpacity: 0.5,
-      positionPrecedence: ['bottom', 'left', 'top', 'right'],
-      tooltipClass: 'custom-mascot-tooltip',
-      highlightClass: 'custom-highlight',
-    });
+  //   intro.setOptions({
+  //     steps: steps,
+  //     showProgress: true,
+  //     showBullets: false,
+  //     showStepNumbers: false,
+  //     exitOnOverlayClick: false,
+  //     exitOnEsc: true,
+  //     disableInteraction: false,
+  //     scrollToElement: true,
+  //     overlayOpacity: 0.5,
+  //     positionPrecedence: ['bottom', 'left', 'top', 'right'],
+  //     tooltipClass: 'custom-mascot-tooltip',
+  //     highlightClass: 'custom-highlight',
+  //   });
 
-    // Track step changes
-    intro.onbeforechange((targetElement) => {
-      // intro._currentStep might be undefined on first call
-      const stepIndex = (intro._currentStep !== undefined && intro._currentStep >= 0) 
-        ? intro._currentStep 
-        : 0;
+  //   Track step changes
+  //   intro.onbeforechange((targetElement) => {
+  //     intro._currentStep might be undefined on first call
+  //     const stepIndex = (intro._currentStep !== undefined && intro._currentStep >= 0) 
+  //       ? intro._currentStep 
+  //       : 0;
       
-      console.log("Before change - Step index:", stepIndex);
-      setCurrentStep(stepIndex);
+  //     console.log("Before change - Step index:", stepIndex);
+  //     setCurrentStep(stepIndex);
       
-      setTimeout(() => {
-        applyCustomTooltip(intro, stepIndex, steps.length);
-      }, 10);
-    });
+  //     setTimeout(() => {
+  //       applyCustomTooltip(intro, stepIndex, steps.length);
+  //     }, 10);
+  //   });
 
-    intro.onafterchange((targetElement) => {
-      const stepIndex = intro._currentStep >= 0 ? intro._currentStep : 0;
-      console.log("After change - Step index:", stepIndex);
-      setCurrentStep(stepIndex);
-      applyCustomTooltip(intro, stepIndex, steps.length);
-    });
+  //   intro.onafterchange((targetElement) => {
+  //     const stepIndex = intro._currentStep >= 0 ? intro._currentStep : 0;
+  //     console.log("After change - Step index:", stepIndex);
+  //     setCurrentStep(stepIndex);
+  //     applyCustomTooltip(intro, stepIndex, steps.length);
+  //   });
 
-    intro.oncomplete(() => {
-      console.log("Tour completed");
-      setRun(false);
-      localStorage.setItem("seen_home_tour", "true");
-    });
+  //   intro.oncomplete(() => {
+  //     console.log("Tour completed");
+  //     setRun(false);
+  //     localStorage.setItem("seen_home_tour", "true");
+  //   });
 
-    intro.onexit(() => {
-      console.log("Tour exited");
-      setRun(false);
-      localStorage.setItem("seen_home_tour", "true");
-    });
+  //   intro.onexit(() => {
+  //     console.log("Tour exited");
+  //     setRun(false);
+  //     localStorage.setItem("seen_home_tour", "true");
+  //   });
 
-    introRef.current = intro;
-    intro.start();
+  //   introRef.current = intro;
+  //   intro.start();
     
-    // Apply custom tooltip for first step immediately after start
-    setTimeout(() => {
-      applyCustomTooltip(intro, 0, steps.length);
-    }, 50);
-  };
+  //   Apply custom tooltip for first step immediately after start
+  //   setTimeout(() => {
+  //     applyCustomTooltip(intro, 0, steps.length);
+  //   }, 50);
+  // };
 
   const applyCustomTooltip = (intro, currentIndex, total) => {
     // Ensure currentIndex is a valid number

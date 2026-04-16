@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { FiCode, FiTrendingUp, FiShoppingBag, FiActivity, FiBarChart2, FiBook, FiArrowRight, FiStar, FiSun } from "react-icons/fi";
+import { FiCode, FiTrendingUp, FiShoppingBag, FiActivity, FiBarChart2, FiBook, FiStar, FiSun } from "react-icons/fi";
 
 const industries = [
   { id: "sw", name: "Software Developer", sub: "Algorithms, system design & coding challenges.", Icon: FiCode },

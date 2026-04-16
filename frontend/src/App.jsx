@@ -7,7 +7,6 @@ import Login from "./pages/login";
 import Tool from "./pages/Tool";
 import PricingPage from "./pages/prices";
 import Landing from "./pages/landing";
-import Tips from "./pages/tips";
 import Advices from "./pages/advices";
 import PrepmeDashboard from "./pages/Home";
 import HomePage from "./pages/home2";
@@ -217,7 +216,6 @@ export default function App() {
         
         {/* Public Routes (no auth required) */}
         <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/tips" element={<Tips />} />
         <Route path="/advices" element={<Advices />} />
         
         {/* Catch-all route - redirect to login if not auth, otherwise to home2 */}

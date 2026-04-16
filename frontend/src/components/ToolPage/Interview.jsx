@@ -1438,50 +1438,50 @@ const responsiveStyles = `
 `;
 
 // Add hover effects for desktop
-const additionalStyles = `
-  @media (min-width: 769px) {
-    .interview-root .back-btn:hover {
-      background: #f8fafc;
-    }
+// const additionalStyles = `
+//   @media (min-width: 769px) {
+//     .interview-root .back-btn:hover {
+//       background: #f8fafc;
+//     }
     
-    .interview-root .icon-btn:hover {
-      background: #f8fafc;
-    }
+//     .interview-root .icon-btn:hover {
+//       background: #f8fafc;
+//     }
     
-    .interview-root .icon-btn.active:hover {
-      background: #b8d068;
-    }
+//     .interview-root .icon-btn.active:hover {
+//       background: #b8d068;
+//     }
     
-    .interview-root .video-btn:hover {
-      background: #f8fafc;
-    }
+//     .interview-root .video-btn:hover {
+//       background: #f8fafc;
+//     }
     
-    .interview-root .end-call-btn:hover {
-      background: #dc2626;
-    }
+//     .interview-root .end-call-btn:hover {
+//       background: #dc2626;
+//     }
     
-    .interview-root .send-btn:hover:not(:disabled) {
-      background: #0a4a6e;
-    }
+//     .interview-root .send-btn:hover:not(:disabled) {
+//       background: #0a4a6e;
+//     }
     
-    .interview-root .voice-btn:hover:not(:disabled) {
-      background: #9b6bc9;
-    }
+//     .interview-root .voice-btn:hover:not(:disabled) {
+//       background: #9b6bc9;
+//     }
     
-    .interview-root .voice-btn.active:hover:not(:disabled) {
-      background: #dc2626;
-    }
+//     .interview-root .voice-btn.active:hover:not(:disabled) {
+//       background: #dc2626;
+//     }
     
-    .interview-root .cancel-btn:hover {
-      background: #f8fafc;
-    }
+//     .interview-root .cancel-btn:hover {
+//       background: #f8fafc;
+//     }
     
-    .interview-root .confirm-btn:hover:not(:disabled) {
-      background: #dc2626;
-    }
+//     .interview-root .confirm-btn:hover:not(:disabled) {
+//       background: #dc2626;
+//     }
     
-    .interview-root .modal-close:hover {
-      color: #073B5A;
-    }
-  }
-`;
+//     .interview-root .modal-close:hover {
+//       color: #073B5A;
+//     }
+//   }
+// `;

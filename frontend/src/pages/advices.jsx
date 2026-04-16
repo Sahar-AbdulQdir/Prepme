@@ -1,37 +1,37 @@
 // Importing React and all necessary components and styles for the Podcast Page
 import React from "react";
-import PrepHero from "../components/Advices/prepHero.jsx";
+// import PrepHero from "../components/Advices/prepHero.jsx";
 import Highlights from "../components/Advices/Highlights.jsx";
-import ImageGrid from "../components/Advices/suggestions.jsx";
+// import ImageGrid from "../components/Advices/suggestions.jsx";
 import MainNavbar from "../components/MainNavbar.jsx";
 import InterviewTips from "../components/Advices/FAQs.jsx";
 import InterviewAdvice from "../components/Advices/RecoPod.jsx";
 import "../styles/advices.css";
 import PodcastSuggestions from "../components/Advices/SuggestionsPodcasts.jsx";
-import Logo from "../assets/Images/Plogo.png";
+// import Logo from "../assets/Images/Plogo.png";
 import InterviewFundamentals from "../components/Advices/fundementals.jsx";
 import Footer from "../components/Footer.jsx";
 import SplashCursor from "../components/splashCursor.jsx";
 
 
-const FOOTER_COLS = [
-  {
-    heading: "Product",
-    links: ["Features", "Industries", "Pricing", "Free Trial"],
-  },
-  {
-    heading: "Company",
-    links: ["About Us", "Blog", "Careers", "Contact"],
-  },
-  {
-    heading: "Resources",
-    links: ["Interview Tips", "STAR Method Guide", "FAQ", "Support"],
-  },
-  {
-    heading: "Legal",
-    links: ["Privacy Policy", "Terms of Service", "Cookie Policy"],
-  },
-];
+// const FOOTER_COLS = [
+//   {
+//     heading: "Product",
+//     links: ["Features", "Industries", "Pricing", "Free Trial"],
+//   },
+//   {
+//     heading: "Company",
+//     links: ["About Us", "Blog", "Careers", "Contact"],
+//   },
+//   {
+//     heading: "Resources",
+//     links: ["Interview Tips", "STAR Method Guide", "FAQ", "Support"],
+//   },
+//   {
+//     heading: "Legal",
+//     links: ["Privacy Policy", "Terms of Service", "Cookie Policy"],
+//   },
+// ];
 
 
 const Advices = ({ onNavigate }) => {
