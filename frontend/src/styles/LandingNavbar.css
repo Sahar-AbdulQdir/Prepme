@@ -113,9 +113,10 @@
   gap: 25px;
 }
 
-.L-nav-left a {
+.L-nav-left button {
   color: #ffffff;
   text-decoration: none;
+  background: #00000000;
   font-size: 16px;
   font-weight: 300;
   position: relative;
@@ -123,7 +124,7 @@
   cursor: pointer;
 }
 
-.L-nav-left a::after {
+.L-nav-left button::after {
   content: "";
   position: absolute;
   left: 0;
@@ -134,11 +135,11 @@
   transition: width 0.3s ease;
 }
 
-.L-nav-left a:hover {
+.L-nav-left button:hover {
   color: white;
 }
 
-.L-nav-left a:hover::after {
+.L-nav-left button:hover::after {
   width: 100%;
 }
 
@@ -311,7 +312,7 @@
     gap: 15px;
   }
   
-  .L-nav-left a {
+  .L-nav-left button {
     font-size: 14px;
   }
   
