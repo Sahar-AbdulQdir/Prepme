@@ -638,7 +638,7 @@ export default function ResumeBuilder() {
   const [generated, setGenerated] = useState(false);
   const [aiEnhancingAll, setAiEnhancingAll] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
-  const [enhanceMessage, setEnhanceMessage] = useState(""); // ✅ added here
+  const [enhanceMessage, setEnhanceMessage] = useState("");
   const resumeRef = useRef(null);
 
   const update = (section, key, val) =>
@@ -740,74 +740,71 @@ export default function ResumeBuilder() {
     }
     
     if (textsToEnhance.length === 0) {
-    setEnhanceMessage("No text fields to enhance (add objective, experience, projects, or summary).");
-    setTimeout(() => setEnhanceMessage(""), 3000);
-    setAiEnhancingAll(false);
-    return;
-  }
-
-  try {
-    const response = await fetch(`${api.enhanceAll}`, {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify({ texts: textsToEnhance, jobTitle: data.personal.jobApplying }),
-    });
-
-    if (response.ok) {
-        const result = await response.json();
-      // Update state with enhanced texts
-      setData(prev => {
-        const newData = { ...prev };
-        result.enhanced.forEach(({ path, enhancedText }) => {
-          if (path.length === 2 && path[0] === "objective") {
-            newData.objective.text = enhancedText;
-          } else if (path.length === 3 && path[0] === "experience") {
-            newData.experience[path[1]].description = enhancedText;
-          } else if (path.length === 3 && path[0] === "projects") {
-            newData.projects[path[1]].description = enhancedText;
-          } else if (path.length === 2 && path[0] === "personal" && path[1] === "summary") {
-            newData.personal.summary = enhancedText;
-          }
-        });
-        return newData;
-      });
-      // ✅ Moved inside the success block
-      setEnhanceMessage(`Enhanced ${result.enhanced.length} section(s).`);
+      setEnhanceMessage("No text fields to enhance (add objective, experience, projects, or summary).");
       setTimeout(() => setEnhanceMessage(""), 3000);
-    } else {
-      // Fallback simulation
-      const enhanced = textsToEnhance.map(item => ({
-        ...item,
-        enhancedText: simulateEnhancement(item.content)
-      }));
-      setData(prev => {
-        const newData = { ...prev };
-        enhanced.forEach(({ path, enhancedText }) => {
-          if (path.length === 2 && path[0] === "objective") {
-            newData.objective.text = enhancedText;
-          } else if (path.length === 3 && path[0] === "experience") {
-            newData.experience[path[1]].description = enhancedText;
-          } else if (path.length === 3 && path[0] === "projects") {
-            newData.projects[path[1]].description = enhancedText;
-          } else if (path.length === 2 && path[0] === "personal" && path[1] === "summary") {
-            newData.personal.summary = enhancedText;
-          }
-        });
-        return newData;
-      });
-      {/* ✅ Moved inside the fallback block */}
-      setEnhanceMessage(`Applied basic fixes to ${textsToEnhance.length} section(s).`);
-      setTimeout(() => setEnhanceMessage(""), 3000);
+      setAiEnhancingAll(false);
+      return;
     }
-  } catch (err) {
-    console.error("AI enhance all failed:", err);
-    {/* ✅ Moved inside the catch block */}
-    setEnhanceMessage("AI enhancement failed. Check console.");
-    setTimeout(() => setEnhanceMessage(""), 4000);
-  } finally {
-    setAiEnhancingAll(false);
-  }
-};
+
+    try {
+      const response = await fetch(`${api.enhanceAll}`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ texts: textsToEnhance, jobTitle: data.personal.jobApplying }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        // Update state with enhanced texts
+        setData(prev => {
+          const newData = { ...prev };
+          result.enhanced.forEach(({ path, enhancedText }) => {
+            if (path.length === 2 && path[0] === "objective") {
+              newData.objective.text = enhancedText;
+            } else if (path.length === 3 && path[0] === "experience") {
+              newData.experience[path[1]].description = enhancedText;
+            } else if (path.length === 3 && path[0] === "projects") {
+              newData.projects[path[1]].description = enhancedText;
+            } else if (path.length === 2 && path[0] === "personal" && path[1] === "summary") {
+              newData.personal.summary = enhancedText;
+            }
+          });
+          return newData;
+        });
+        setEnhanceMessage(`Enhanced ${result.enhanced.length} section(s).`);
+        setTimeout(() => setEnhanceMessage(""), 3000);
+      } else {
+        // Fallback simulation
+        const enhanced = textsToEnhance.map(item => ({
+          ...item,
+          enhancedText: simulateEnhancement(item.content)
+        }));
+        setData(prev => {
+          const newData = { ...prev };
+          enhanced.forEach(({ path, enhancedText }) => {
+            if (path.length === 2 && path[0] === "objective") {
+              newData.objective.text = enhancedText;
+            } else if (path.length === 3 && path[0] === "experience") {
+              newData.experience[path[1]].description = enhancedText;
+            } else if (path.length === 3 && path[0] === "projects") {
+              newData.projects[path[1]].description = enhancedText;
+            } else if (path.length === 2 && path[0] === "personal" && path[1] === "summary") {
+              newData.personal.summary = enhancedText;
+            }
+          });
+          return newData;
+        });
+        setEnhanceMessage(`Applied basic fixes to ${textsToEnhance.length} section(s).`);
+        setTimeout(() => setEnhanceMessage(""), 3000);
+      }
+    } catch (err) {
+      console.error("AI enhance all failed:", err);
+      setEnhanceMessage("AI enhancement failed. Check console.");
+      setTimeout(() => setEnhanceMessage(""), 4000);
+    } finally {
+      setAiEnhancingAll(false);
+    }
+  };
 
   // Simple local fallback enhancement (capitalize first letter, add period, fix basic grammar)
   const simulateEnhancement = (text) => {
@@ -1166,11 +1163,11 @@ export default function ResumeBuilder() {
         </button>
 
         {/* Render near the button */}
-{enhanceMessage && (
-  <div style={{ marginTop: "10px", padding: "8px 12px", background: "#e8f0fe", borderRadius: "8px", fontSize: "13px" }}>
-    {enhanceMessage}
-  </div>
-)}
+        {enhanceMessage && (
+          <div style={{ marginTop: "10px", padding: "8px 12px", background: "#e8f0fe", borderRadius: "8px", fontSize: "13px" }}>
+            {enhanceMessage}
+          </div>
+        )}
       </div>
 
       {savedMsg && (
@@ -1445,17 +1442,17 @@ export default function ResumeBuilder() {
       `}</style>
 
       <header style={styles.header} className="header">
-                             <SplashCursor
-    SIM_RESOLUTION={224}
-    DYE_RESOLUTION={640}
-    DENSITY_DISSIPATION={2.5}
-    VELOCITY_DISSIPATION={2}
-    PRESSURE={0.6}
-    CURL={0}
-    SPLAT_RADIUS={0.2}
-    SPLAT_FORCE={3000}
-    COLOR_UPDATE_SPEED={8}
-  />
+        <SplashCursor
+          SIM_RESOLUTION={224}
+          DYE_RESOLUTION={640}
+          DENSITY_DISSIPATION={2.5}
+          VELOCITY_DISSIPATION={2}
+          PRESSURE={0.6}
+          CURL={0}
+          SPLAT_RADIUS={0.2}
+          SPLAT_FORCE={3000}
+          COLOR_UPDATE_SPEED={8}
+        />
         <div style={styles.logoText} className="logoText">
           cv<span style={styles.logoAccent}>craft</span>
           <span style={{ fontSize: "12px", fontWeight: "500", color: `${C.white}77`, marginLeft: "10px", letterSpacing: "0.5px" }}>AI-Powered Resume Builder</span>
