@@ -26,6 +26,25 @@ const ProtectedRoute = ({ user, children }) => {
   return children;
 };
 
+// Wrapper component for HomePage with Tour and Mascot
+const HomePageWrapper = ({ user, sessions, onRefresh, runTour, setRunTour, showMascot, onStartTour, onCloseMascot }) => {
+  return (
+    <>
+      <HomePage 
+        user={user} 
+        sessions={sessions} 
+        onRefresh={onRefresh}
+      />
+      <Tour run={runTour} setRun={setRunTour} />
+      <MascotPopup 
+        visible={showMascot} 
+        onStartTour={onStartTour}
+        onClose={onCloseMascot}
+      />
+    </>
+  );
+};
+
 export default function App() {
   const [runTour, setRunTour] = useState(false);
   const navigate = useNavigate();
@@ -95,7 +114,7 @@ export default function App() {
     setSessions([]);
     localStorage.removeItem("prepme_user");
     localStorage.removeItem("prepme_token");
-    navigate("/landing"); // Changed from "/login" to "/landing"
+    navigate("/landing");
   };
 
   const handleStartTour = () => {
@@ -134,7 +153,7 @@ export default function App() {
 
       <Routes>
         {/* Public Routes - Accessible without authentication */}
-        <Route path="/" element={<Landing />} /> {/* Changed from redirect to Landing component */}
+        <Route path="/" element={<Landing />} />
         <Route path="/landing" element={<Landing />} />
         <Route path="/login" element={<Login onAuthSuccess={handleAuthSuccess} />} />
         <Route path="/pricing" element={<PricingPage />} />
@@ -145,19 +164,16 @@ export default function App() {
           path="/home2"
           element={
             <ProtectedRoute user={user}>
-              <>
-                <HomePage 
-                  user={user} 
-                  sessions={sessions} 
-                  onRefresh={fetchSessions}
-                />
-                <Tour run={runTour} setRun={setRunTour} />
-                <MascotPopup 
-                  visible={showMascot} 
-                  onStartTour={handleStartTour}
-                  onClose={() => setShowMascot(false)}
-                />
-              </>
+              <HomePageWrapper 
+                user={user}
+                sessions={sessions}
+                onRefresh={fetchSessions}
+                runTour={runTour}
+                setRunTour={setRunTour}
+                showMascot={showMascot}
+                onStartTour={handleStartTour}
+                onCloseMascot={() => setShowMascot(false)}
+              />
             </ProtectedRoute>
           }
         />
@@ -192,7 +208,7 @@ export default function App() {
             user ? (
               <Navigate to="/home2" replace />
             ) : (
-              <Navigate to="/landing" replace /> {/* Changed from "/login" to "/landing" */}
+              <Navigate to="/landing" replace />
             )
           }
         />
