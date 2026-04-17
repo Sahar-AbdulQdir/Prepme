@@ -802,7 +802,11 @@ app.get("/health", (req, res) => {
   });
 });
 
+
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () =>
-  console.log(`🚀 PrepMe API running on http://localhost:${PORT}`)
-);
+
+app.listen(PORT, () => {
+  console.log("PORT from env:", process.env.PORT);
+  console.log("CLIENT_URL from env:", process.env.CLIENT_URL);
+  console.log(`🚀 PrepMe API running on http://localhost:${PORT}`);
+});

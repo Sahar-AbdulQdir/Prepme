@@ -1,6 +1,6 @@
 // components/Tour.jsx - Fixed version
 import { useEffect, useRef } from "react";
-// import introJs from "intro.js";
+import introJs from "intro.js/intro.js";
 import "intro.js/introjs.css";
 // import Mascot from "../assets/Images/mascot2.png";
 
@@ -30,6 +30,43 @@ export default function Tour({ run, setRun }) {
         },
       ];
 
+      const startIntroTour = (steps) => {
+        if (introRef.current) {
+          introRef.current.exit();
+        }
+
+        const intro = introJs();
+        introRef.current = intro;
+
+        intro.setOptions({
+          steps: steps,
+          showProgress: true,
+          showBullets: true,
+          showStepNumbers: true,
+          exitOnOverlayClick: false,
+          exitOnEsc: true,
+          disableInteraction: true,
+          overlayOpacity: 0.5,
+          tooltipClass: 'custom-tooltip',
+          highlightClass: 'custom-highlight',
+        });
+
+        intro.start();
+
+        intro.onexit(() => {
+          console.log("Tour completed or exited");
+          setRun(false);
+          introRef.current = null;
+        });
+
+        intro.oncomplete(() => {
+          console.log("Tour completed successfully");
+          localStorage.setItem("seen_home_tour", "true");
+          setRun(false);
+          introRef.current = null;
+        });
+      };
+
       const verifyTargets = () => {
         const validSteps = [];
         for (let i = 0; i < tourSteps.length; i++) {
@@ -47,38 +84,28 @@ export default function Tour({ run, setRun }) {
           console.error("No valid targets found, tour cancelled");
           setRun(false);
         } else {
-          console.log(`Setting ${validSteps.length} tour steps`);
+          console.log(`Starting tour with ${validSteps.length} steps`);
           stepsRef.current = validSteps;
-          
-          setTimeout(() => {
-            // startIntroTour(validSteps);
-          }, 100);
+          startIntroTour(validSteps); // Now calling the actual function
         }
       };
 
+      // Give DOM time to render
       setTimeout(verifyTargets, 300);
     }
   }, [run, setRun]);
 
-  // Remove the applyCustomTooltip function since it's not being used
-  // OR if you plan to use it later, add this comment:
-  // eslint-disable-next-line no-unused-vars
-  // const applyCustomTooltip = (intro, currentIndex, total) => {
-  //   // ... function body ...
-  // };
-
-  // Clean up - Fix the exhaustive-deps warning
+  // Clean up tour on unmount
   useEffect(() => {
-    const currentIntroRef = introRef.current;
-    
     return () => {
-      if (currentIntroRef) {
-        currentIntroRef.exit();
+      if (introRef.current) {
+        introRef.current.exit();
+        introRef.current = null;
       }
     };
   }, []);
 
-  // Custom CSS
+  // Custom CSS for the tour
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `

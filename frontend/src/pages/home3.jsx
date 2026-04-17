@@ -46,7 +46,7 @@ const STATS = [
 ];
 
 export default function HomePage() {
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeFeature, setActiveFeature] = useState(null);
   const heroRef = useRef(null);
@@ -55,7 +55,7 @@ export default function HomePage() {
   const [featVisible, setFeatVisible] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    // const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
