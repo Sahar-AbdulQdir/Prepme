@@ -114,7 +114,7 @@ export default function App() {
     setSessions([]);
     localStorage.removeItem("prepme_user");
     localStorage.removeItem("prepme_token");
-    navigate("/landing");
+    navigate("/");
   };
 
   const handleStartTour = () => {
@@ -141,8 +141,11 @@ export default function App() {
     );
   }
 
+  // Hide navbar on landing page, login page, and root path
   const hideNavbar =
-    location.pathname === "/login" || location.pathname === "/landing";
+    location.pathname === "/login" || 
+    location.pathname === "/landing" || 
+    location.pathname === "/";
 
   return (
     <div className="app">
@@ -208,7 +211,7 @@ export default function App() {
             user ? (
               <Navigate to="/home2" replace />
             ) : (
-              <Navigate to="/landing" replace />
+              <Navigate to="/" replace />
             )
           }
         />
