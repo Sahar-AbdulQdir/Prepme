@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 // import introJs from "intro.js";
 import "intro.js/introjs.css";
-import Mascot from "../assets/Images/mascot2.png";
+// import Mascot from "../assets/Images/mascot2.png";
 
 export default function Tour({ run, setRun }) {
   const introRef = useRef(null);
