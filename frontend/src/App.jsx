@@ -1,4 +1,4 @@
-// App.jsx - Updated with proper auth flow starting at login
+// App.jsx - Updated to start at landing page
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 
@@ -95,7 +95,7 @@ export default function App() {
     setSessions([]);
     localStorage.removeItem("prepme_user");
     localStorage.removeItem("prepme_token");
-    navigate("/login");
+    navigate("/landing"); // Changed from "/login" to "/landing"
   };
 
   const handleStartTour = () => {
@@ -134,13 +134,11 @@ export default function App() {
 
       <Routes>
         {/* Public Routes - Accessible without authentication */}
-        <Route path="/login" element={<Login onAuthSuccess={handleAuthSuccess} />} />
+        <Route path="/" element={<Landing />} /> {/* Changed from redirect to Landing component */}
         <Route path="/landing" element={<Landing />} />
+        <Route path="/login" element={<Login onAuthSuccess={handleAuthSuccess} />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/advices" element={<Advices />} />
-        
-        {/* Root path - redirect to login (starting point) */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
         
         {/* Protected Routes - Require authentication */}
         <Route
@@ -194,7 +192,7 @@ export default function App() {
             user ? (
               <Navigate to="/home2" replace />
             ) : (
-              <Navigate to="/login" replace />
+              <Navigate to="/landing" replace /> {/* Changed from "/login" to "/landing" */}
             )
           }
         />
