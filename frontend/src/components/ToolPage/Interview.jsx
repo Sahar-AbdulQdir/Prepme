@@ -1,6 +1,4 @@
-
-// Interview.jsx
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   MdCallEnd,
   MdVideocam,
@@ -45,16 +43,15 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
   const timerRef = useRef(null);
   const chatContainerRef = useRef(null);
 
-  const messages = session.messages || [];
+  // FIX 1: Memoize messages to prevent unnecessary re-renders
+  const messages = useMemo(() => session.messages || [], [session.messages]);
 
   // Responsive breakpoint detection
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  // const [isTablet, setIsTablet] = useState(window.innerWidth <= 1024);
 
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
-      // setIsTablet(window.innerWidth <= 1024);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -80,46 +77,6 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
     };
     scrollToBottom();
   }, [messages, aiTyping]);
-
-  useEffect(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.lang = "en-US";
-      recognition.onresult = (e) => {
-        const transcript = Array.from(e.results)
-          .map((r) => r[0].transcript)
-          .join("");
-        setInput(transcript);
-        if (e.results[0].isFinal) {
-          setTimeout(() => handleSend(), 100);
-        }
-      };
-      recognition.onend = () => setListening(false);
-      recognition.onerror = () => setListening(false);
-      recognitionRef.current = recognition;
-    }
-    return () => {
-      window.speechSynthesis?.cancel();
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === "Escape") {
-        setShowEndConfirm(false);
-        setMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, []);
 
   const startCamera = async () => {
     try {
@@ -172,6 +129,7 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
     }
   };
 
+  // FIX 2: Wrap speakMessage in useCallback with proper dependencies
   const speakMessage = useCallback(
     (text) => {
       if (!window.speechSynthesis || mode !== "speak") return;
@@ -205,39 +163,81 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
     }
   }, [messages, mode, speakMessage]);
 
-  const toggleVoiceInput = () => {
-    if (!recognitionRef.current) return;
-    if (listening) {
-      recognitionRef.current.stop();
-      setListening(false);
-    } else {
-      setInput("");
-      recognitionRef.current.start();
-      setListening(true);
-    }
-  };
-
-  const handleSend = async () => {
-    let msg = input.trim();
-    if (mode === "speak" && !msg && listening) {
-      toggleVoiceInput();
-      return;
-    }
-    if (!msg || sending) return;
+const toggleVoiceInput = useCallback(() => {
+  if (!recognitionRef.current) return;
+  if (listening) {
+    recognitionRef.current.stop();
+    setListening(false);
+  } else {
     setInput("");
-    setSending(true);
-    setAiTyping(true);
-    setError(null);
-    try {
-      await onSend(session.id || session._id, msg);
-    } catch (err) {
-      setError(err.message || "Failed to send message.");
-    } finally {
-      setSending(false);
-      setAiTyping(false);
-      inputRef.current?.focus();
+    recognitionRef.current.start();
+    setListening(true);
+  }
+}, [listening]);
+
+  // FIX 3: Wrap handleSend in useCallback
+  const handleSend = useCallback(async () => {
+  let msg = input.trim();
+  if (mode === "speak" && !msg && listening) {
+    toggleVoiceInput();
+    return;
+  }
+  if (!msg || sending) return;
+  setInput("");
+  setSending(true);
+  setAiTyping(true);
+  setError(null);
+  try {
+    await onSend(session.id || session._id, msg);
+  } catch (err) {
+    setError(err.message || "Failed to send message.");
+  } finally {
+    setSending(false);
+    setAiTyping(false);
+    inputRef.current?.focus();
+  }
+}, [input, mode, listening, sending, onSend, session.id, session._id, toggleVoiceInput]);
+
+  // FIX 4: Add handleSend to useEffect dependencies
+  useEffect(() => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
+      recognition.onresult = (e) => {
+        const transcript = Array.from(e.results)
+          .map((r) => r[0].transcript)
+          .join("");
+        setInput(transcript);
+        if (e.results[0].isFinal) {
+          setTimeout(() => handleSend(), 100);
+        }
+      };
+      recognition.onend = () => setListening(false);
+      recognition.onerror = () => setListening(false);
+      recognitionRef.current = recognition;
     }
-  };
+    return () => {
+      window.speechSynthesis?.cancel();
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [handleSend]); // Added handleSend dependency
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") {
+        setShowEndConfirm(false);
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
 
   const handleEndCall = async () => {
     setEndNotice({
