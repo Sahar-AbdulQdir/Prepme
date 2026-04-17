@@ -1,109 +1,264 @@
-// components/Tour.jsx - Fixed version without onafterstart
-import { useEffect, useRef } from "react";
-// import introJs from "intro.js";
-import "intro.js/introjs.css";
-// import Mascot from "../assets/Images/mascot2.png";
+import React, { useState, useEffect, useCallback } from "react";
+import Setup from "../components/ToolPage/Setup";
+import Interview from "../components/ToolPage/Interview";
+import Sessions from "../components/ToolPage/Sessions";
+import Evaluation from "../components/ToolPage/Evaluation";
+import { api, authHeaders } from "../api";
+import "../styles/global.css";
+import SplashCursor from "../components/splashCursor";
 
-export default function Tour({ run, setRun }) {
-  const introRef = useRef(null);
-  const stepsRef = useRef([]);
+export default function Tool({ onLogout, user, navigate, onSessionComplete }) {
+  const [view, setView] = useState("setup");
+  const [sessions, setSessions] = useState([]);
+  const [activeSession, setActiveSession] = useState(null);
+  const [evaluation, setEvaluation] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (run) {
-      console.log("Tour starting with Intro.js...");
+  const handleEndSession = async (sessionId) => {
+    try {
+      console.log("Ending session:", sessionId);
+      setLoading(true);
+
+      const res = await fetch(api.sessionById(sessionId), {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders(),
+        },
+        body: JSON.stringify({ status: "completed" }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setActiveSession(data.session || null);
+      setEvaluation(data.session?.evaluation || null);
+
+      // Refresh sessions list
+      await fetchSessions();
       
-      const tourSteps = [
-        {
-          element: '.nav-link[data-tour="resume"]',
-          intro: "📄 Start building your professional resume here. Create, edit, and download your resume instantly!",
-          position: "bottom",
-        },
-        {
-          element: '.cta-content',
-          intro: "🎯 Practice AI-powered interviews here. Get real-time feedback and improve your interview skills!",
-          position: "left",
-        },
-        {
-          element: '.widgets-row',
-          intro: "👤 Track your progress, view analytics, and manage your interview sessions from these cards!",
-          position: "top",
-        },
-      ];
+      // Notify parent that a session was completed
+      if (onSessionComplete) {
+        onSessionComplete();
+      }
 
-      const verifyTargets = () => {
-        const validSteps = [];
-        for (let i = 0; i < tourSteps.length; i++) {
-          const step = tourSteps[i];
-          const element = document.querySelector(step.element);
-          if (element) {
-            console.log(`✅ Step ${i + 1} target found: ${step.element}`);
-            validSteps.push(step);
-          } else {
-            console.warn(`❌ Step ${i + 1} target NOT found: ${step.element}`);
-          }
-        }
+      if (data.session?.evaluation) {
+        setView("evaluation");
+      } else {
+        setView("sessions");
+      }
 
-        if (validSteps.length === 0) {
-          console.error("No valid targets found, tour cancelled");
-          setRun(false);
-        } else {
-          console.log(`Setting ${validSteps.length} tour steps`);
-          stepsRef.current = validSteps;
-          
-          setTimeout(() => {
-            // startIntroTour(validSteps);
-          }, 100);
-        }
-      };
-
-      setTimeout(verifyTargets, 300);
+    } catch (err) {
+      setError(err.message || "Failed to end session");
+    } finally {
+      setLoading(false);
     }
-  }, [run, setRun]);
+  };
 
-  // Clean up
-  useEffect(() => {
-    const introInstance = introRef.current;
-    return () => {
-      if (introInstance) {
-        introInstance.exit();
+  const fetchSessions = useCallback(async () => {
+    try {
+      const res = await fetch(api.sessions, {
+        headers: authHeaders(),
+      });
+
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setSessions(data);
       }
-    };
+    } catch (err) {
+      console.error("Failed to fetch sessions:", err);
+    }
   }, []);
 
-  // Custom CSS
   useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      .custom-highlight {
-        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5), 0 0 15px 5px rgba(34, 197, 94, 0.5) !important;
-        border-radius: 8px !important;
-      }
-      
-      .introjs-helperLayer {
-        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5), 0 0 15px 5px rgba(34, 197, 94, 0.3) !important;
-        border-radius: 8px !important;
-      }
-      
-      .introjs-tooltip {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(17, 28, 51, 0.95)) !important;
-        min-width: 300px !important;
-        max-width: 320px !important;
-      }
-      
-      .introjs-button {
-        display: none !important;
-      }
-      
-      .introjs-skipbutton {
-        display: none !important;
-      }
-    `;
-    document.head.appendChild(style);
-    
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
+    fetchSessions();
+  }, [fetchSessions]);
 
-  return null;
+  const startSession = async ({ field, level, interviewType }) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(api.sessions, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders(),
+        },
+        body: JSON.stringify({ field, level, interviewType }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setActiveSession(data.session);
+      fetchSessions();
+      setView("interview");
+    } catch (err) {
+      setError(err.message || "Failed to start interview.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendMessage = async (sessionId, userMessage) => {
+    const res = await fetch(api.interview, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ sessionId, userMessage }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+
+    setActiveSession(data.session);
+    fetchSessions();
+
+    if (data.evaluation) {
+      setEvaluation(data.evaluation);
+      setView("evaluation");
+      
+      // Notify parent of session completion
+      if (onSessionComplete) {
+        onSessionComplete();
+      }
+    }
+
+    return data;
+  };
+
+  const loadSession = async (id) => {
+    setLoading(true);
+    try {
+      const res = await fetch(api.sessionById(id), {
+        headers: authHeaders(),
+      });
+
+      const data = await res.json();
+      setActiveSession(data);
+
+      if (data.evaluation) {
+        setEvaluation(data.evaluation);
+        setView("evaluation");
+      } else {
+        setView("interview");
+      }
+    } catch (err) {
+      setError("Failed to load session.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteSession = async (id) => {
+    try {
+      const res = await fetch(api.sessionById(id), {
+        method: "DELETE",
+        headers: authHeaders(),
+      });
+
+      if (!res.ok) throw new Error("Failed to delete session");
+
+      await fetchSessions();
+      
+      // Notify parent of session deletion
+      if (onSessionComplete) {
+        onSessionComplete();
+      }
+
+      if (activeSession?._id === id || activeSession?.id === id) {
+        setActiveSession(null);
+        setView("setup");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div className="tool-page">
+      <SplashCursor
+        SIM_RESOLUTION={224}
+        DYE_RESOLUTION={640}
+        DENSITY_DISSIPATION={2.5}
+        VELOCITY_DISSIPATION={2}
+        PRESSURE={0.6}
+        CURL={0}
+        SPLAT_RADIUS={0.2}
+        SPLAT_FORCE={3000}
+        COLOR_UPDATE_SPEED={8}
+      />
+      
+      {/* <nav className="nav">
+        <div className="nav-brand" onClick={() => navigate("/home2")} style={{ cursor: "pointer" }}>
+          <span className="nav-logo">P</span>
+          <span className="nav-name">Prepme</span>
+          <span className="nav-tag">AI Interviews</span>
+        </div>
+        <div className="nav-links">
+          <button
+            className={`nav-btn ${view === "setup" ? "active" : ""}`}
+            onClick={() => setView("setup")}
+          >
+            New Interview
+          </button>
+          <button
+            className={`nav-btn ${view === "sessions" ? "active" : ""}`}
+            onClick={() => setView("sessions")}
+          >
+            Sessions
+            {sessions.length > 0 && (
+              <span className="nav-badge">{sessions.length}</span>
+            )}
+          </button>
+          <button className="nav-btn" onClick={() => navigate("/home2")}>
+            ← Home
+          </button>
+          {user && (
+            <button className="nav-btn" onClick={onLogout}>
+              Log Out
+            </button>
+          )}
+        </div>
+      </nav> */}
+
+      {error && (
+        <div className="global-error" onClick={() => setError(null)}>
+          ⚠ {error} <span>✕</span>
+        </div>
+      )}
+
+      {view === "setup" && (
+        <Setup onStart={startSession} loading={loading} />
+      )}
+
+      {view === "interview" && activeSession && (
+        <Interview
+          session={activeSession}
+          onSend={sendMessage}
+          onEnd={handleEndSession}  
+          onBack={() => setView("setup")}
+        />
+      )}
+
+      {view === "sessions" && (
+        <Sessions
+          sessions={sessions}
+          onLoad={loadSession}
+          onDelete={deleteSession}
+          loading={loading}
+        />
+      )}
+
+      {view === "evaluation" && evaluation && (
+        <Evaluation
+          evaluation={evaluation}
+          session={activeSession}
+          onBack={() => setView("sessions")}
+          onNewInterview={() => { setEvaluation(null); setView("setup"); }}
+        />
+      )}
+    </div>
+  );
 }

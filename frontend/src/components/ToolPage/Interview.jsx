@@ -1,5 +1,6 @@
+
 // Interview.jsx
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   MdCallEnd,
   MdVideocam,
@@ -44,14 +45,16 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
   const timerRef = useRef(null);
   const chatContainerRef = useRef(null);
 
-  const messages = useMemo(() => session.messages || [], [session.messages]);
+  const messages = session.messages || [];
 
   // Responsive breakpoint detection
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  // const [isTablet, setIsTablet] = useState(window.innerWidth <= 1024);
 
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
+      // setIsTablet(window.innerWidth <= 1024);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -77,40 +80,6 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
     };
     scrollToBottom();
   }, [messages, aiTyping]);
-
-  const toggleVoiceInput = useCallback(() => {
-    if (!recognitionRef.current) return;
-    if (listening) {
-      recognitionRef.current.stop();
-      setListening(false);
-    } else {
-      setInput("");
-      recognitionRef.current.start();
-      setListening(true);
-    }
-  }, [listening]);
-
-  const handleSend = useCallback(async () => {
-    let msg = input.trim();
-    if (mode === "speak" && !msg && listening) {
-      toggleVoiceInput();
-      return;
-    }
-    if (!msg || sending) return;
-    setInput("");
-    setSending(true);
-    setAiTyping(true);
-    setError(null);
-    try {
-      await onSend(session.id || session._id, msg);
-    } catch (err) {
-      setError(err.message || "Failed to send message.");
-    } finally {
-      setSending(false);
-      setAiTyping(false);
-      inputRef.current?.focus();
-    }
-  }, [input, mode, listening, sending, onSend, session.id, session._id, toggleVoiceInput]);
 
   useEffect(() => {
     const SpeechRecognition =
@@ -139,7 +108,7 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
         streamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [handleSend]);
+  }, []);
 
   useEffect(() => {
     const handleKey = (e) => {
@@ -235,6 +204,40 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
       speakMessage(lastMsg.content);
     }
   }, [messages, mode, speakMessage]);
+
+  const toggleVoiceInput = () => {
+    if (!recognitionRef.current) return;
+    if (listening) {
+      recognitionRef.current.stop();
+      setListening(false);
+    } else {
+      setInput("");
+      recognitionRef.current.start();
+      setListening(true);
+    }
+  };
+
+  const handleSend = async () => {
+    let msg = input.trim();
+    if (mode === "speak" && !msg && listening) {
+      toggleVoiceInput();
+      return;
+    }
+    if (!msg || sending) return;
+    setInput("");
+    setSending(true);
+    setAiTyping(true);
+    setError(null);
+    try {
+      await onSend(session.id || session._id, msg);
+    } catch (err) {
+      setError(err.message || "Failed to send message.");
+    } finally {
+      setSending(false);
+      setAiTyping(false);
+      inputRef.current?.focus();
+    }
+  };
 
   const handleEndCall = async () => {
     setEndNotice({
@@ -1434,3 +1437,52 @@ const responsiveStyles = `
     }
   }
 `;
+
+
+// const additionalStyles = `
+//   @media (min-width: 769px) {
+//     .interview-root .back-btn:hover {
+//       background: #f8fafc;
+//     }
+    
+//     .interview-root .icon-btn:hover {
+//       background: #f8fafc;
+//     }
+    
+//     .interview-root .icon-btn.active:hover {
+//       background: #b8d068;
+//     }
+    
+//     .interview-root .video-btn:hover {
+//       background: #f8fafc;
+//     }
+    
+//     .interview-root .end-call-btn:hover {
+//       background: #dc2626;
+//     }
+    
+//     .interview-root .send-btn:hover:not(:disabled) {
+//       background: #0a4a6e;
+//     }
+    
+//     .interview-root .voice-btn:hover:not(:disabled) {
+//       background: #9b6bc9;
+//     }
+    
+//     .interview-root .voice-btn.active:hover:not(:disabled) {
+//       background: #dc2626;
+//     }
+    
+//     .interview-root .cancel-btn:hover {
+//       background: #f8fafc;
+//     }
+    
+//     .interview-root .confirm-btn:hover:not(:disabled) {
+//       background: #dc2626;
+//     }
+    
+//     .interview-root .modal-close:hover {
+//       color: #073B5A;
+//     }
+//   }
+// `;

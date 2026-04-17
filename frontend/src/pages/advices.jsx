@@ -3,7 +3,7 @@ import React from "react";
 // import PrepHero from "../components/Advices/prepHero.jsx";
 import Highlights from "../components/Advices/Highlights.jsx";
 // import ImageGrid from "../components/Advices/suggestions.jsx";
-import MainNavbar from "../components/MainNavbar.jsx";
+// import MainNavbar from "../components/MainNavbar.jsx";
 import InterviewTips from "../components/Advices/FAQs.jsx";
 import InterviewAdvice from "../components/Advices/RecoPod.jsx";
 import "../styles/advices.css";
@@ -51,7 +51,7 @@ const Advices = ({ onNavigate }) => {
   />
 
       <div className="podcast-foreground">
-        <MainNavbar navigate={onNavigate} />
+        {/* <MainNavbar navigate={onNavigate} /> */}
         <Highlights />
           <PodcastSuggestions />
         {/* <PrepHero /> */}

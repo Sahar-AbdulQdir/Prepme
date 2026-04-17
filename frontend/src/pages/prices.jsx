@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../styles/prices.css";
-import MainNavbar from "../components/MainNavbar";
+// import MainNavbar from "../components/MainNavbar";
 import Footer from "../components/Footer";
 import SplashCursor from "../components/splashCursor";
 
@@ -71,7 +71,7 @@ export default function PricingPage({ onNavigate }) {
     SPLAT_FORCE={3000}
     COLOR_UPDATE_SPEED={8}
   />
-      <MainNavbar navigate={onNavigate} />
+      {/* <MainNavbar navigate={onNavigate} /> */}
 
       <div className="pricing-hero">
         <h1 className="pricing-hero-title">Simple, Transparent Pricing</h1>

@@ -8,7 +8,6 @@ import Tool from "./pages/Tool";
 import PricingPage from "./pages/prices";
 import Landing from "./pages/landing";
 import Advices from "./pages/advices";
-// import PrepmeDashboard from "./pages/Home";
 import HomePage from "./pages/home2";
 import ResumeBuilder from "./pages/resume";
 import Tour from "./components/Tour";
@@ -134,32 +133,16 @@ export default function App() {
       <ScrollToHash />
 
       <Routes>
-        {/* Public Routes */}
+        {/* Public Routes - Accessible without authentication */}
+        <Route path="/login" element={<Login onAuthSuccess={handleAuthSuccess} />} />
         <Route path="/landing" element={<Landing />} />
-        <Route
-          path="/login"
-          element={
-            user ? (
-              <Navigate to="/home2" replace />
-            ) : (
-              <Login onAuthSuccess={handleAuthSuccess} />
-            )
-          }
-        />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/advices" element={<Advices />} />
         
-        {/* Protected Routes */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute user={user}>
-              <HomePage 
-                user={user} 
-                sessions={sessions} 
-                onRefresh={fetchSessions}
-              />
-            </ProtectedRoute>
-          }
-        />
+        {/* Root path - redirect to login (starting point) */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        
+        {/* Protected Routes - Require authentication */}
         <Route
           path="/home2"
           element={
@@ -180,18 +163,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        {/* <Route
-          path="/home"
-          element={
-            <ProtectedRoute user={user}>
-              <PrepmeDashboard 
-                user={user} 
-                sessions={sessions}
-                onRefresh={fetchSessions}
-              />
-            </ProtectedRoute>
-          }
-        /> */}
+        
         <Route
           path="/tool"
           element={
@@ -205,6 +177,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        
         <Route
           path="/resume"
           element={
@@ -214,11 +187,7 @@ export default function App() {
           }
         />
         
-        {/* Public Routes (no auth required) */}
-        <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/advices" element={<Advices />} />
-        
-        {/* Catch-all route - redirect to login if not auth, otherwise to home2 */}
+        {/* Catch-all route - redirect to appropriate page based on auth status */}
         <Route
           path="*"
           element={
