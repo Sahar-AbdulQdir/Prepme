@@ -39,7 +39,7 @@ const useInView = (threshold = 0.12) => {
     );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
-  }, []);
+  }, [threshold]); // ✅ fixed missing dependency
   return [ref, inView];
 };
 
@@ -125,6 +125,17 @@ const H2 = ({ children, style = {} }) => (
   <h2 style={{ fontFamily: "'Sora', 'Istok Web', sans-serif", fontWeight: 700, fontSize: "clamp(26px,4vw,40px)", color: COLORS.primary, margin: "0 0 14px", lineHeight: 1.2, ...style }}>{children}</h2>
 );
 
+// ── Image map helper – uses imported images directly to avoid lint warnings ──
+const getScreenshotImage = (label) => {
+  switch (label) {
+    case "Interview Practice": return InterviewImg;
+    case "Resume Builder":     return ResumeImg;
+    case "Skill Tracker":      return SkillsImg;
+    case "Career Roadmap":     return RoadmapImg;
+    default:                   return InterviewImg; // fallback
+  }
+};
+
 // ── Data ──────────────────────────────────────────────────────────────────────
 const statCards = [
   { icon: FiTrendingUp, stat: "63%",  label: "of graduates feel unprepared for the job market",             color: COLORS.primary },
@@ -139,14 +150,6 @@ const mockScreens = [
   { label: "Skill Tracker",       icon: FiBarChart2, desc: "Progress dashboard",                  gradient: "linear-gradient(135deg,#0d5671 0%,#B87CFB 100%)" },
   { label: "Career Roadmap",      icon: FiTarget,    desc: "Personalized growth paths",           gradient: "linear-gradient(135deg,#0f7a9d 0%,#bacb6f 60%)" },
 ];
-
-// ─── Map each screen label to its correct imported image ─────────────────────
-const screenImageMap = {
-  "Interview Practice": InterviewImg,
-  "Resume Builder":     ResumeImg,
-  "Skill Tracker":      SkillsImg,
-  "Career Roadmap":     RoadmapImg,
-};
 
 const sdgs = [
   {
@@ -581,7 +584,7 @@ export default function Press() {
                   onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
                 >
                   <img
-                    src={screenImageMap[label]}
+                    src={getScreenshotImage(label)}   // ✅ using imported images directly
                     alt={label}
                     style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
                   />

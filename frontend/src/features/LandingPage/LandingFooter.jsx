@@ -13,6 +13,7 @@ const FOOTER_LINKS = [
   { label: "Pricing", href: "/#LandingPrices" },
   { label: "How it works", href: "/#how-it-works" },
   { label: "Login", href: "/login" },
+  { label: "Media Press kit", href: "/press" },
 ];
 
 const styles = {

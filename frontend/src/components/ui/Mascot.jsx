@@ -63,8 +63,6 @@ const PAGE_CONFIGS = {
   "/tool":    { corner: "top-right",    from: "top-right"    },
   "/resume":  { corner: "top-left",     from: "top-left"     },
   "/pricing": { corner: "bottom-right", from: "bottom-right" },
-  "/landing": { corner: "bottom-left",  from: "bottom-left"  },
-  "/press":   { corner: "top-right",    from: "top-right"    },
 };
 
 function getConfig(pathname) {
