@@ -1,17 +1,17 @@
 // Importing React and all necessary components and styles for the Podcast Page
 import React from "react";
 // import PrepHero from "../components/Advices/prepHero.jsx";
-import Highlights from "../components/Advices/Highlights.jsx";
+import Highlights from "../features/Advices/Highlights.jsx";
 // import ImageGrid from "../components/Advices/suggestions.jsx";
 // import MainNavbar from "../components/MainNavbar.jsx";
-import InterviewTips from "../components/Advices/FAQs.jsx";
-import InterviewAdvice from "../components/Advices/RecoPod.jsx";
+import InterviewTips from "../features/Advices/FAQs.jsx";
+import InterviewAdvice from "../features/Advices/RecoPod.jsx";
 import "../styles/advices.css";
-import PodcastSuggestions from "../components/Advices/SuggestionsPodcasts.jsx";
+import PodcastSuggestions from "../features/Advices/SuggestionsPodcasts.jsx";
 // import Logo from "../assets/Images/Plogo.png";
-import InterviewFundamentals from "../components/Advices/fundementals.jsx";
-import Footer from "../components/Footer.jsx";
-import SplashCursor from "../components/splashCursor.jsx";
+import InterviewFundamentals from "../features/Advices/fundementals.jsx";
+import Footer from "../components/ui/Footer.jsx";
+import SplashCursor from "../components/effects/splashCursor.jsx";
 
 
 // const FOOTER_COLS = [

@@ -1,8 +1,8 @@
 // home2.jsx - Final Updated Version
 import React, { useEffect } from "react";
 import "../styles/int.css";
-import Footer from "../components/Footer";
-import SplashCursor from "../components/splashCursor";
+import Footer from "../components/ui/Footer";
+import SplashCursor from "../components/effects/splashCursor";
 import {
   FiCode,
   FiShield,

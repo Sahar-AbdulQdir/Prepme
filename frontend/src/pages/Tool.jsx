@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Setup from "../components/ToolPage/Setup";
-import Interview from "../components/ToolPage/Interview";
-import Sessions from "../components/ToolPage/Sessions";
-import Evaluation from "../components/ToolPage/Evaluation";
-import { api, authHeaders } from "../api";
+import Setup from "../features/ToolPage/Setup";
+import Interview from "../features/ToolPage/Interview";
+import Sessions from "../features/ToolPage/Sessions";
+import Evaluation from "../features/ToolPage/Evaluation";
+import { api, authHeaders } from "../services/api";
 import "../styles/global.css";
-import SplashCursor from "../components/splashCursor";
+import SplashCursor from "../components/effects/splashCursor";
 
 export default function Tool({ onLogout, user, navigate, onSessionComplete }) {
   const [view, setView] = useState("setup");

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { api } from "../api";
-import SplashCursor from "../components/splashCursor";
+import { api } from "../services/api";
+import SplashCursor from "../components/effects/splashCursor";
+import { useNavigate } from "react-router-dom";
+import emailjs from "@emailjs/browser";
 // ── change this to your deployed API URL in production ──
 // const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -463,6 +465,8 @@ const GREETINGS = [
   (name) => `Let's get started, ${name}!`,
 ];
 
+
+
 // ── Icons ──────────────────────────────────────
 const EyeIcon = ({ open }) =>
   open ? (
@@ -540,6 +544,7 @@ const ArrowRightIcon = () => (
 // Main Component
 // ──────────────────────────────────────────────
 export default function LoginPage({ onAuthSuccess }) {
+  const navigate = useNavigate();
   const [showPw, setShowPw]         = useState(false);
   const [isSignIn, setIsSignIn]     = useState(false);
   const [email, setEmail]           = useState("");
@@ -549,6 +554,30 @@ export default function LoginPage({ onAuthSuccess }) {
   const [error, setError]           = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const greetingIndexRef            = useRef(0);
+
+const sendWelcomeEmail = async (user) => {
+  try {
+    const firstName = user?.name?.trim().split(" ")[0] || "there";
+
+    const greeting =
+      GREETINGS[Math.floor(Math.random() * GREETINGS.length)](firstName);
+
+    await emailjs.send(
+      "service_pun7lni",
+      "template_wnzm7jh",
+      {
+        to_name: user.name,
+        user_email: user.email,
+        greeting: greeting,
+      },
+      "IbRGONvwhFwrv-fQR"
+    );
+  } catch (err) {
+    console.error("Email failed:", err);
+  }
+};
+
+
 
   useEffect(() => {
     const id = "lp-styles";
@@ -566,16 +595,22 @@ export default function LoginPage({ onAuthSuccess }) {
     setSuccessMsg("");
   }, [isSignIn]);
 
-  const getTitle = () => {
-    if (isSignIn) return "Welcome back";
-    const trimmed = username.trim();
-    if (trimmed.length > 0) {
-      const firstName = trimmed.split(" ")[0];
-      const fn = GREETINGS[greetingIndexRef.current % GREETINGS.length];
-      return fn(firstName);
-    }
-    return "Create an account";
-  };
+const getTitle = () => {
+  if (isSignIn) return "Welcome back";
+
+  const trimmed = username.trim();
+
+  if (trimmed.length > 0) {
+    const firstName = trimmed.split(" ")[0];
+
+    const greeting =
+      GREETINGS[Math.floor(Math.random() * GREETINGS.length)](firstName);
+
+    return greeting;
+  }
+
+  return "Create an account";
+};
 
   const getSub = () => {
     if (isSignIn)
@@ -619,6 +654,7 @@ export default function LoginPage({ onAuthSuccess }) {
 
 
   // ── Form submit ────────────────────────────
+   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const handleAuthAction = async () => {
     setError("");
     setSuccessMsg("");
@@ -628,8 +664,8 @@ export default function LoginPage({ onAuthSuccess }) {
       setError("Please enter your name.");
       return;
     }
-    if (!email.trim()) {
-      setError("Please enter your email.");
+    if (!emailRegex.test(email.trim())) {
+      setError("Please enter a valid email address.");
       return;
     }
     if (password.length < 8) {
@@ -640,6 +676,10 @@ export default function LoginPage({ onAuthSuccess }) {
     setLoading(true);
     try {
       const data = isSignIn ? await login() : await register();
+      
+      if (!isSignIn) {
+        sendWelcomeEmail(data.user);
+      }
 
       // Persist token for subsequent API calls
       localStorage.setItem("prepme_token", data.token);
@@ -691,8 +731,14 @@ export default function LoginPage({ onAuthSuccess }) {
       {/* ── Left panel ── */}
       <div className="lp-left">
         <div className="lp-logo">
-          <span className="lp-logo-text">PrepMe</span>
-        </div>
+  <span
+    className="lp-logo-text"
+    style={{ cursor: "pointer" }}
+    onClick={() => navigate("/")}
+  >
+    PrepMe
+  </span>
+</div>
         <div className="lp-left-body">
           <p className="lp-eyebrow">AI Interview Coach</p>
           <h1 className="lp-headline">
@@ -740,6 +786,7 @@ export default function LoginPage({ onAuthSuccess }) {
               <input
                 className="lp-input"
                 type="email"
+                required
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

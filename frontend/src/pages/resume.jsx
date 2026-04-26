@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
-import { api, authHeaders } from "../api";
-import SplashCursor from "../components/splashCursor";
+import { api, authHeaders } from "../services/api";
+import SplashCursor from "../components/effects/splashCursor";
 // ─── Icons (SVG inline, no emojis) ───────────────────────────────────────────
 const Icon = {
   User: () => (

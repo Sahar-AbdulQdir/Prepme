@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Istok+Web:wght@400;700&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Istok Web', sans-serif;
+  background: #F2F3F0;
+  color: #000;
+}
+
+.press-container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+/* CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+}
+
+.icon {
+  font-size: 28px;
+}
+
+.btn {
+  margin-top: 15px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.primary {
+  background: #073B5A;
+  color: white;
+  border: none;
+}
+
+.outline {
+  border: 2px solid #AA7BD9;
+  background: transparent;
+}
+
+/* DETAILS */
+.details {
+  margin-top: 60px;
+}
+
+.detail-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.detail-card {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+}
+
+/* BRAND */
+.brand {
+  margin-top: 60px;
+  text-align: center;
+}
+
+.colors {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.color {
+  padding: 20px;
+  border-radius: 50%;
+  color: white;
+}
+
+.primary-color {
+  background: #073B5A;
+}
+
+.secondary-color {
+  background: #AA7BD9;
+}
+
+.grey-color {
+  background: #ccc;
+  color: black;
+}
+
+/* MASCOT */
+.mascot-img {
+  width: 80px;
+  opacity: 0.8;
+}
+
+/* FOOTER */
+.footer {
+  margin-top: 50px;
+  text-align: center;
+}
+
+/* ANIMATION */
+.fade {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s ease;
+}
+
+.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* RESPONSIVE */
+@media (min-width: 768px) {
+  .cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .detail-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

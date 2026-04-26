@@ -19,20 +19,22 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 20px;
   width: 100%;
 }
 
 .pricing-hero-title {
-  font-size: clamp(1.8rem, 5vw, 2.2rem);
-  font-weight: 700;
-  margin: 0 0 12px;
+  font-size: clamp(1.9rem, 5vw, 2.2rem);
+  /* font-weight: 700; */
+  margin: 0 0 0px;
   letter-spacing: -0.5px;
   max-width: 90%;
   line-height: 1.2;
+  margin-top: -8%;
 }
 
 .hero-desc {
-  font-size: clamp(0.85rem, 2vw, 0.9rem);
+  font-size: clamp(0.9rem, 2vw, 0.9rem);
   color: rgba(255, 255, 255, 0.85);
   margin: 0;
   font-weight: 400;
@@ -73,12 +75,33 @@
   transform: translateY(-4px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
 }
+.card {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* This pushes buttons to bottom */
+.card-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
 .free-card {
   background: #ffffff;
   border: 1px solid #e8ecf0;
 }
 
+.whiteBadge{
+    padding: 16px 12px;
+  }
 /* Featured card */
 .featured-card {
   background: white;
@@ -105,7 +128,9 @@
 .card-inner {
   padding: clamp(24px, 4vw, 32px) clamp(20px, 4vw, 28px) clamp(28px, 4vw, 36px);
 }
-
+.wh-card-inner{
+ padding: clamp(24px, 4vw, 32px) clamp(10px, 4vw, 18px) clamp(18px, 4vw, 20px);
+}
 .featured-inner {
   padding: clamp(20px, 4vw, 28px) clamp(20px, 4vw, 28px) clamp(28px, 4vw, 36px);
 }
@@ -231,12 +256,13 @@
 .no-card-note {
   font-size: clamp(0.7rem, 1.5vw, 0.75rem);
   color: #999;
+  /* padding-bottom: 25px; */
   margin: 8px 0 0;
 }
 
 .btn-primary {
   width: 100%;
-  padding: clamp(14px, 3vw, 16px) clamp(16px, 3vw, 20px);
+  padding: clamp(12px, 3vw, 16px) clamp(16px, 3vw, 20px);
   border-radius: 30px;
   border: none;
   background: linear-gradient(135deg, #0d3a52, #1a5272);
