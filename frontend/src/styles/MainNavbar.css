@@ -100,7 +100,7 @@
 .nav-link::after {
   content: "";
   position: absolute;
-  left: 65%;
+  left: 50%;
   bottom: 4px;
   width: 0%;
   height: 3px;
@@ -125,8 +125,9 @@
 
 /* ===== Center Logo ===== */
 .nav-logo {
-  position: static;   /* remove absolute */
+  position: relative;   /* remove absolute */
   transform: none;
+  left:60%;
   justify-self: center;
   display: flex;
   align-items: center;
