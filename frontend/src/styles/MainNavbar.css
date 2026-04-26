@@ -100,7 +100,7 @@
 .nav-link::after {
   content: "";
   position: absolute;
-  left: 50%;
+  left: 65%;
   bottom: 4px;
   width: 0%;
   height: 3px;

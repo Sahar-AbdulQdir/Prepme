@@ -13,13 +13,12 @@ import InterviewImg from "../../src/assets/Images/pressInterview.png";
 import ResumeImg    from "../../src/assets/Images/pressResume.png";
 import SkillsImg    from "../../src/assets/Images/pressSkills.png";
 import RoadmapImg   from "../../src/assets/Images/pressDashboard.png";
-// If you don't have the images yet, placeholder gradients are shown instead.
 // ──────────────────────────────────────────────────────────────────────────────
 
 const COLORS = {
-  primary:   "#0d5671",   // deep teal-navy
-  secondary: "#B87CFB",   // violet
-  lime:      "#bacb6f",   // olive-lime accent
+  primary:   "#0d5671",
+  secondary: "#B87CFB",
+  lime:      "#bacb6f",
   bg:        "#f7f8f5",
   text:      "#0d1a20",
   cardBg:    "#FFFFFF",
@@ -141,6 +140,14 @@ const mockScreens = [
   { label: "Career Roadmap",      icon: FiTarget,    desc: "Personalized growth paths",           gradient: "linear-gradient(135deg,#0f7a9d 0%,#bacb6f 60%)" },
 ];
 
+// ─── Map each screen label to its correct imported image ─────────────────────
+const screenImageMap = {
+  "Interview Practice": InterviewImg,
+  "Resume Builder":     ResumeImg,
+  "Skill Tracker":      SkillsImg,
+  "Career Roadmap":     RoadmapImg,
+};
+
 const sdgs = [
   {
     num: "SDG 4",
@@ -223,13 +230,15 @@ const brandColors = [
   { name: "Border Gray",       hex: "#e0e3d8", light: true  },
 ];
 
-// ── Email request links – replace with real file URLs when available ─────────
+// ── Download & contact links ─────────────────────────────────────────────────
 const EMAIL = "prepme.cc@gmail.com";
 const PRESS_EMAIL = `mailto:${EMAIL}`;
-const PRESS_KIT_REQUEST   = `mailto:${EMAIL}?subject=Request%20for%20Press%20Kit&body=Hello%2C%20I%20would%20like%20to%20request%20the%20Press%20Kit.`;
-const LOGO_PACK_REQUEST   = `mailto:${EMAIL}?subject=Request%20for%20Logo%20Pack&body=Hello%2C%20I%20would%20like%20to%20request%20the%20Logo%20Pack.`;
-const TEAM_BIOS_REQUEST   = `mailto:${EMAIL}?subject=Request%20for%20Founding%20Team%20Bios&body=Hello%2C%20I%20would%20like%20to%20request%20the%20Founding%20Team%20Bios.`;
-const FACT_SHEET_REQUEST  = `mailto:${EMAIL}?subject=Request%20for%20Fact%20Sheet&body=Hello%2C%20I%20would%20like%20to%20request%20the%20Fact%20Sheet.`;
+
+// Replace these placeholder paths with the actual URLs of your downloadable assets
+const PRESS_KIT_URL  = "/press/Prepme_pressKit.zip";
+const LOGO_PACK_URL  = "/press/Prepme_Logo_Pack.zip";
+const TEAM_BIOS_URL  = "/press/PrepMe_Founding_Team.pdf";
+const FACT_SHEET_URL = "/press/PrepMe — Fact Sheet.pdf";
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function Press() {
@@ -285,7 +294,7 @@ export default function Press() {
         </div>
         <div style={{ display: "flex", gap: 10 }}>
           <Btn variant="ghost" icon={FiDownload} style={{ padding: "8px 16px", fontSize: 13 }}
-            href={PRESS_KIT_REQUEST}>
+            href={PRESS_KIT_URL} download>
             Press Kit (Request)
           </Btn>
           <Btn icon={FiMail} style={{ padding: "8px 16px", fontSize: 13 }}
@@ -321,7 +330,7 @@ export default function Press() {
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <Btn icon={FiDownload} style={{ fontSize: 15, padding: "13px 28px" }}
-              href={PRESS_KIT_REQUEST}>
+              href={PRESS_KIT_URL} download>
               Request Press Kit
             </Btn>
             <Btn variant="outline" icon={FiMail} style={{ fontSize: 15, padding: "13px 28px" }}
@@ -403,7 +412,7 @@ export default function Press() {
                   ))}
                 </ul>
                 <Btn icon={FiDownload} variant="ghost" style={{ width: "100%", justifyContent: "center" }}
-                  href={LOGO_PACK_REQUEST}>
+                  href={LOGO_PACK_URL} download>
                   Request Logo Pack
                 </Btn>
               </Card>
@@ -430,7 +439,7 @@ export default function Press() {
                 ))}
                 <p style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6, marginBottom: 20 }}>A multidisciplinary team united by one mission: making career success accessible to all.</p>
                 <Btn icon={FiDownload} variant="ghost" style={{ width: "100%", justifyContent: "center" }}
-                  href={TEAM_BIOS_REQUEST}>
+                  href={TEAM_BIOS_URL} download>
                   Request Team Bios
                 </Btn>
               </Card>
@@ -455,7 +464,7 @@ export default function Press() {
                   </div>
                 ))}
                 <Btn icon={FiDownload} variant="ghost" style={{ width: "100%", justifyContent: "center", marginTop: 18 }}
-                  href={FACT_SHEET_REQUEST}>
+                  href={FACT_SHEET_URL} download>
                   Request Fact Sheet
                 </Btn>
               </Card>
@@ -571,37 +580,11 @@ export default function Press() {
                   onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 20px 50px rgba(13,86,113,0.15)"; }}
                   onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
                 >
-                  
-                    {/* ─── REAL SCREENSHOT ZONE ───────────────────────────────────────
-                    Replace the <div> below with an <img> tag once you have your
-                    product screenshots ready, for example: */}
-
-                    <img
-                      src={InterviewImg}      
-                      alt={label}
-                      style={{ width:"100%", height:200, objectFit:"cover", display:"block" }}
-                    />
-
-
-{/* 
-                    The gradient placeholder below will be removed automatically.
-                    ──────────────────────────────────────────────────────────────── */}
-                 
-                  {/* <div style={{
-                    height: 200, background: gradient,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    flexDirection: "column", gap: 12, position: "relative"
-                  }}>
-                    <div style={{ position: "absolute", top: 14, left: 14, right: 14, height: 5, background: "rgba(255,255,255,0.15)", borderRadius: 3 }} />
-                    <div style={{ position: "absolute", top: 27, left: 14, width: "40%", height: 3, background: "rgba(255,255,255,0.08)", borderRadius: 2 }} />
-                    <div style={{ width: 54, height: 54, borderRadius: "50%", background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <Icon size={24} color="#fff" />
-                    </div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", letterSpacing: "0.06em", fontWeight: 600 }}>PREVIEW</div>
-                    <div style={{ position: "absolute", bottom: 14, left: 14, right: 14 }}>
-                      <div style={{ height: 4, background: "rgba(186,203,111,0.55)", borderRadius: 2, width: `${38 + i * 13}%` }} />
-                    </div>
-                  </div> */}
+                  <img
+                    src={screenImageMap[label]}
+                    alt={label}
+                    style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
+                  />
                   <div style={{ padding: "18px 20px" }}>
                     <div style={{ fontWeight: 700, fontSize: 14, color: COLORS.primary, marginBottom: 5 }}>{label}</div>
                     <div style={{ fontSize: 12, color: COLORS.muted }}>{desc}</div>
@@ -889,11 +872,11 @@ export default function Press() {
               {[
                 { label: "Back to Landing page", href: "/landing" },
                 { label: "Privacy Policy",   href: "/privacy" },
-                { label: "prepme.cc@gmail.com",  href: PRESS_EMAIL },
-              ].map(({ label, href }) => (
-                <a key={label} href={href} style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", textDecoration: "none", transition: "color 0.2s" }}
+                { label: "prepme.cc@gmail.com",  href: PRESS_EMAIL, color: "#fff" },
+              ].map(({ label, href, color }) => (
+                <a key={label} href={href} style={{ fontSize: 12, color: color || "rgba(255,255,255,0.4)", textDecoration: "none", transition: "color 0.2s" }}
                   onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.85)"}
-                  onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.4)"}>
+                  onMouseLeave={e => e.currentTarget.style.color = color || "rgba(255,255,255,0.4)"}>
                   {label}
                 </a>
               ))}
