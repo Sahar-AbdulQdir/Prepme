@@ -14,6 +14,7 @@ export default function Tool({ onLogout, user, navigate, onSessionComplete }) {
   const [evaluation, setEvaluation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [interviewEnded, setInterviewEnded] = useState(false);   // NEW
 
   const handleEndSession = async (sessionId) => {
     try {
@@ -35,10 +36,8 @@ export default function Tool({ onLogout, user, navigate, onSessionComplete }) {
       setActiveSession(data.session || null);
       setEvaluation(data.session?.evaluation || null);
 
-      // Refresh sessions list
       await fetchSessions();
-      
-      // Notify parent that a session was completed
+
       if (onSessionComplete) {
         onSessionComplete();
       }
@@ -48,7 +47,6 @@ export default function Tool({ onLogout, user, navigate, onSessionComplete }) {
       } else {
         setView("sessions");
       }
-
     } catch (err) {
       setError(err.message || "Failed to end session");
     } finally {
@@ -102,6 +100,7 @@ export default function Tool({ onLogout, user, navigate, onSessionComplete }) {
     }
   };
 
+  // UPDATED: show thank‑you message, then countdown, then redirect
   const sendMessage = async (sessionId, userMessage) => {
     const res = await fetch(api.interview, {
       method: "POST",
@@ -112,20 +111,53 @@ export default function Tool({ onLogout, user, navigate, onSessionComplete }) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
 
-    setActiveSession(data.session);
-    fetchSessions();
-
+    // If the interview is complete (evaluation returned by backend)
     if (data.evaluation) {
       setEvaluation(data.evaluation);
-      setView("evaluation");
-      
-      // Notify parent of session completion
+
+      // Append a final thank‑you message from the AI if the last message empty
+      const updatedMessages = [...data.session.messages];
+      const lastMsg = updatedMessages[updatedMessages.length - 1];
+      const cleanContent = lastMsg?.content
+        ?.replace(/<evaluation>[\s\S]*?<\/evaluation>/g, "")
+        .trim();
+
+      if (!cleanContent) {
+        // Ensure a thank‑you message is shown
+        updatedMessages.push({
+          role: "assistant",
+          content:
+            "Thank you for completing this interview! Your responses have been recorded. You can review them and your evaluation in the Sessions tab.",
+        });
+      }
+
+      setActiveSession({
+        ...data.session,
+        messages: updatedMessages,
+      });
+
+      setInterviewEnded(true);     // triggers countdown in Interview component
+      fetchSessions();
+
       if (onSessionComplete) {
         onSessionComplete();
       }
+
+      // Note: view does NOT change yet – wait for countdown
+      return data;
     }
 
+    // Normal flow – update active session
+    setActiveSession(data.session);
+    fetchSessions();
     return data;
+  };
+
+  // Called by Interview component after the 5‑second countdown
+  const handleInterviewComplete = () => {
+    setInterviewEnded(false);
+    setView("sessions");      // go directly to sessions list
+    setActiveSession(null);   // re‑fetch from sessions when needed
   };
 
   const loadSession = async (id) => {
@@ -161,8 +193,7 @@ export default function Tool({ onLogout, user, navigate, onSessionComplete }) {
       if (!res.ok) throw new Error("Failed to delete session");
 
       await fetchSessions();
-      
-      // Notify parent of session deletion
+
       if (onSessionComplete) {
         onSessionComplete();
       }
@@ -189,39 +220,6 @@ export default function Tool({ onLogout, user, navigate, onSessionComplete }) {
         SPLAT_FORCE={3000}
         COLOR_UPDATE_SPEED={8}
       />
-      
-      {/* <nav className="nav">
-        <div className="nav-brand" onClick={() => navigate("/home2")} style={{ cursor: "pointer" }}>
-          <span className="nav-logo">P</span>
-          <span className="nav-name">Prepme</span>
-          <span className="nav-tag">AI Interviews</span>
-        </div>
-        <div className="nav-links">
-          <button
-            className={`nav-btn ${view === "setup" ? "active" : ""}`}
-            onClick={() => setView("setup")}
-          >
-            New Interview
-          </button>
-          <button
-            className={`nav-btn ${view === "sessions" ? "active" : ""}`}
-            onClick={() => setView("sessions")}
-          >
-            Sessions
-            {sessions.length > 0 && (
-              <span className="nav-badge">{sessions.length}</span>
-            )}
-          </button>
-          <button className="nav-btn" onClick={() => navigate("/home2")}>
-            ← Home
-          </button>
-          {user && (
-            <button className="nav-btn" onClick={onLogout}>
-              Log Out
-            </button>
-          )}
-        </div>
-      </nav> */}
 
       {error && (
         <div className="global-error" onClick={() => setError(null)}>
@@ -237,8 +235,10 @@ export default function Tool({ onLogout, user, navigate, onSessionComplete }) {
         <Interview
           session={activeSession}
           onSend={sendMessage}
-          onEnd={handleEndSession}  
+          onEnd={handleEndSession}
           onBack={() => setView("setup")}
+          interviewEnded={interviewEnded}               // NEW
+          onInterviewComplete={handleInterviewComplete}  // NEW
         />
       )}
 
@@ -256,7 +256,10 @@ export default function Tool({ onLogout, user, navigate, onSessionComplete }) {
           evaluation={evaluation}
           session={activeSession}
           onBack={() => setView("sessions")}
-          onNewInterview={() => { setEvaluation(null); setView("setup"); }}
+          onNewInterview={() => {
+            setEvaluation(null);
+            setView("setup");
+          }}
         />
       )}
     </div>

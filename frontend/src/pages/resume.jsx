@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { api, authHeaders } from "../services/api";
 import SplashCursor from "../components/effects/splashCursor";
+
 // ─── Icons (SVG inline, no emojis) ───────────────────────────────────────────
 const Icon = {
   User: () => (
@@ -131,7 +132,7 @@ const BWG = {
   gray900:"#212121",
 };
 
-// ─── UI Colors (unchanged, for editing interface only) ───────────────────────
+// ─── UI Colors (for editing interface only) ──────────────────────────────────
 const C = {
   navy:   "#1E3A5F",
   accent: "#2C5F8A",
@@ -143,6 +144,82 @@ const C = {
   bg:     "#F1F5F9",
   border: "#E2E8F0",
   textMuted: "#64748B",
+};
+
+// ─── Country & City data ──────────────────────────────────────────────────────
+const countryFlag = (code) => {
+  if (!code) return "";
+  const letters = code.toUpperCase();
+  const offset = 0x1F1E6 - 65;
+  const first = letters.charCodeAt(0) + offset;
+  const second = letters.charCodeAt(1) + offset;
+  return String.fromCodePoint(first, second);
+};
+
+const COUNTRIES = [
+  { code: "AE", name: "United Arab Emirates" },
+  { code: "US", name: "United States" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "IN", name: "India" },
+  { code: "SA", name: "Saudi Arabia" },
+  { code: "EG", name: "Egypt" },
+  { code: "JO", name: "Jordan" },
+  { code: "LB", name: "Lebanon" },
+  { code: "QA", name: "Qatar" },
+  { code: "KW", name: "Kuwait" },
+  { code: "OM", name: "Oman" },
+  { code: "BH", name: "Bahrain" },
+  { code: "DE", name: "Germany" },
+  { code: "FR", name: "France" },
+  { code: "CA", name: "Canada" },
+  { code: "AU", name: "Australia" },
+  { code: "SG", name: "Singapore" },
+  { code: "MY", name: "Malaysia" },
+  { code: "TR", name: "Turkey" },
+  { code: "IT", name: "Italy" },
+  { code: "ES", name: "Spain" },
+  { code: "NL", name: "Netherlands" },
+  { code: "SE", name: "Sweden" },
+  { code: "ZA", name: "South Africa" },
+  { code: "NG", name: "Nigeria" },
+  { code: "BR", name: "Brazil" },
+  { code: "MX", name: "Mexico" },
+  { code: "JP", name: "Japan" },
+  { code: "CN", name: "China" },
+  { code: "KR", name: "South Korea" },
+];
+
+const CITIES_BY_COUNTRY = {
+  AE: ["Dubai", "Abu Dhabi", "Sharjah", "Al Ain", "Ajman"],
+  US: ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "San Francisco"],
+  GB: ["London", "Manchester", "Birmingham", "Edinburgh", "Glasgow"],
+  IN: ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata"],
+  SA: ["Riyadh", "Jeddah", "Mecca", "Medina", "Dammam"],
+  EG: ["Cairo", "Alexandria", "Giza", "Luxor", "Aswan"],
+  JO: ["Amman", "Zarqa", "Irbid", "Aqaba"],
+  LB: ["Beirut", "Tripoli", "Sidon", "Byblos"],
+  QA: ["Doha", "Al Rayyan", "Al Wakrah", "Umm Salal"],
+  KW: ["Kuwait City", "Hawalli", "Salmiya", "Farwaniya"],
+  OM: ["Muscat", "Salalah", "Sohar", "Nizwa"],
+  BH: ["Manama", "Riffa", "Muharraq", "Hamad Town"],
+  DE: ["Berlin", "Munich", "Frankfurt", "Hamburg", "Cologne"],
+  FR: ["Paris", "Marseille", "Lyon", "Toulouse", "Nice"],
+  CA: ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa"],
+  AU: ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"],
+  SG: ["Singapore"],
+  MY: ["Kuala Lumpur", "George Town", "Johor Bahru", "Ipoh"],
+  TR: ["Istanbul", "Ankara", "Izmir", "Antalya", "Bursa"],
+  IT: ["Rome", "Milan", "Naples", "Turin", "Florence"],
+  ES: ["Madrid", "Barcelona", "Valencia", "Seville", "Bilbao"],
+  NL: ["Amsterdam", "Rotterdam", "The Hague", "Utrecht"],
+  SE: ["Stockholm", "Gothenburg", "Malmö", "Uppsala"],
+  ZA: ["Johannesburg", "Cape Town", "Durban", "Pretoria"],
+  NG: ["Lagos", "Abuja", "Kano", "Ibadan", "Port Harcourt"],
+  BR: ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza"],
+  MX: ["Mexico City", "Guadalajara", "Monterrey", "Puebla", "Cancún"],
+  JP: ["Tokyo", "Osaka", "Kyoto", "Yokohama", "Nagoya"],
+  CN: ["Beijing", "Shanghai", "Guangzhou", "Shenzhen", "Chengdu"],
+  KR: ["Seoul", "Busan", "Incheon", "Daegu", "Daejeon"],
 };
 
 // ─── Styles (UI only) ────────────────────────────────────────────────────────
@@ -258,6 +335,15 @@ const styles = {
     boxSizing: "border-box",
     transition: "border 0.15s",
     fontFamily: "inherit",
+  },
+  inputError: {
+    border: "1.5px solid #E05C5C",
+  },
+  errorText: {
+    fontSize: "12px",
+    color: "#E05C5C",
+    marginTop: "4px",
+    fontWeight: "500",
   },
   textarea: {
     width: "100%",
@@ -424,10 +510,10 @@ const SECTIONS = [
   { id: "generate",     label: "Generate CV",       Icon: Icon.Sparkles },
 ];
 
-// ─── DEFAULT STATE (removed photo, added skip flags) ─────────────────────────
+// ─── DEFAULT STATE ────────────────────────────────────────────────────────────
 const defaultState = () => ({
   personal: { firstName: "", lastName: "", jobTitle: "", jobApplying: "", summary: "" },
-  contact: { email: "", phone: "", city: "", country: "", linkedin: "", website: "" },
+  contact: { email: "", phone: "", country: "", city: "", linkedin: "", website: "" },
   objective: { text: "" },
   experience: [],
   education: [],
@@ -437,8 +523,8 @@ const defaultState = () => ({
   certifications: [],
   interests: [],
   newInterest: "",
-  skipExperience: false,   // new flag
-  skipProjects: false,     // new flag
+  skipExperience: false,
+  skipProjects: false,
 });
 
 // ─── BLACK & WHITE RESUME PREVIEW (single column, no colors) ─────────────────
@@ -446,16 +532,18 @@ function ResumePreview({ data, resumeRef }) {
   const { personal, contact, objective, experience, education, skills, projects, languages, certifications, interests, skipExperience, skipProjects } = data;
   const fullName = `${personal.firstName} ${personal.lastName}`.trim() || "Your Name";
 
-  const sectionHead = (title) => (
-    <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "24px 0 12px 0" }}>
-      <div style={{ flex: 1, height: "1px", background: BWG.gray300, borderRadius: "1px" }} />
-      <span style={{ fontSize: "11px", fontWeight: "800", letterSpacing: "1.5px", textTransform: "uppercase", color: BWG.gray700, flexShrink: 0 }}>{title}</span>
-      <div style={{ flex: 1, height: "1px", background: BWG.gray300, borderRadius: "1px" }} />
+  const SectionTitle = ({ title }) => (
+    <div style={{ margin: "18px 0 6px", borderBottom: `1px solid ${BWG.gray300}`, paddingBottom: "4px" }}>
+      <span style={{ fontSize: "13px", fontWeight: "800", letterSpacing: "1.2px", textTransform: "uppercase", color: BWG.black }}>{title}</span>
     </div>
   );
 
-  const renderText = (text) => (
-    <p style={{ fontSize: "13px", color: BWG.gray800, lineHeight: "1.65", margin: "4px 0" }}>{text}</p>
+  const textLine = (text) => (
+    <p style={{ fontSize: "12px", color: BWG.gray800, lineHeight: "1.5", margin: "3px 0" }}>{text}</p>
+  );
+
+  const commaList = (items) => (
+    <span style={{ fontSize: "12px", color: BWG.gray800 }}>{items.join(", ")}</span>
   );
 
   return (
@@ -466,165 +554,131 @@ function ResumePreview({ data, resumeRef }) {
       fontFamily: "'DM Sans', sans-serif",
       boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
       margin: "0 auto",
+      padding: "44px 48px",
       position: "relative",
     }}>
-      
-      {/* Header - Black background, white text */}
-      <div style={{ background: BWG.black, padding: "36px 44px 28px" }}>
-        <div>
-          <h1 style={{ fontSize: "32px", fontWeight: "900", color: BWG.white, margin: "0 0 4px", letterSpacing: "-0.5px" }}>{fullName}</h1>
-          {(personal.jobTitle || personal.jobApplying) && (
-            <p style={{ fontSize: "15px", color: BWG.gray400, fontWeight: "600", margin: "0 0 12px", letterSpacing: "0.3px" }}>
-              {personal.jobApplying || personal.jobTitle}
-            </p>
-          )}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", fontSize: "12px", color: BWG.gray300 }}>
-            {contact.email && <span style={{ display: "flex", alignItems: "center", gap: "5px" }}><Icon.Mail /><span>{contact.email}</span></span>}
-            {contact.phone && <span style={{ display: "flex", alignItems: "center", gap: "5px" }}><Icon.Phone /><span>{contact.phone}</span></span>}
-            {(contact.city || contact.country) && <span style={{ display: "flex", alignItems: "center", gap: "5px" }}><Icon.MapPin /><span>{[contact.city, contact.country].filter(Boolean).join(", ")}</span></span>}
-            {contact.linkedin && <span style={{ display: "flex", alignItems: "center", gap: "5px" }}><Icon.Linkedin /><span>{contact.linkedin}</span></span>}
-            {contact.website && <span style={{ display: "flex", alignItems: "center", gap: "5px" }}><Icon.Globe /><span>{contact.website}</span></span>}
-          </div>
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <h1 style={{ fontSize: "28px", fontWeight: "900", color: BWG.black, margin: "0 0 6px", letterSpacing: "-0.3px" }}>{fullName}</h1>
+        {(personal.jobTitle || personal.jobApplying) && (
+          <p style={{ fontSize: "14px", color: BWG.gray700, fontWeight: "600", margin: "0 0 8px", letterSpacing: "0.2px" }}>
+            {personal.jobApplying || personal.jobTitle}
+          </p>
+        )}
+        <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "12px", fontSize: "11px", color: BWG.gray600, fontWeight: "500" }}>
+          {contact.email && <span>{contact.email}</span>}
+          {contact.phone && <span>{contact.phone}</span>}
+          {[contact.city, contact.country].filter(Boolean).join(", ") && <span>{[contact.city, contact.country].filter(Boolean).join(", ")}</span>}
+          {contact.linkedin && <span>{contact.linkedin}</span>}
+          {contact.website && <span>{contact.website}</span>}
         </div>
       </div>
 
-      {/* Body - Single column, vertical layout */}
-      <div style={{ padding: "20px 44px 40px" }}>
-        {/* Objective / Summary */}
-        {(objective.text || personal.summary) && (
-          <>
-            {sectionHead("Professional Summary")}
-            <p style={{ fontSize: "13px", color: BWG.gray800, lineHeight: "1.65", margin: "0 0 8px" }}>{objective.text || personal.summary}</p>
-          </>
-        )}
+      {(objective.text || personal.summary) && (
+        <>
+          <SectionTitle title="Professional Summary" />
+          <p style={{ fontSize: "12px", color: BWG.gray800, lineHeight: "1.6", margin: "0 0 8px" }}>{objective.text || personal.summary}</p>
+        </>
+      )}
 
-        {/* Work Experience - only if not skipped and has items */}
-        {!skipExperience && experience.length > 0 && (
-          <>
-            {sectionHead("Work Experience")}
-            {experience.map((exp, i) => (
-              <div key={i} style={{ marginBottom: "20px", paddingLeft: "14px", borderLeft: `2px solid ${BWG.gray400}` }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap" }}>
-                  <div>
-                    <p style={{ margin: "0 0 2px", fontSize: "14px", fontWeight: "700", color: BWG.black }}>{exp.role}</p>
-                    <p style={{ margin: "0 0 4px", fontSize: "13px", fontWeight: "600", color: BWG.gray700 }}>{exp.company}</p>
-                  </div>
-                  <span style={{ fontSize: "11px", color: BWG.gray600, whiteSpace: "nowrap", fontWeight: "600", background: BWG.gray100, padding: "3px 8px", borderRadius: "20px" }}>
-                    {exp.startDate}{exp.startDate && exp.endDate ? " – " : ""}{exp.endDate}
-                  </span>
-                </div>
-                {exp.description && renderText(exp.description)}
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* Education */}
-        {education.length > 0 && (
-          <>
-            {sectionHead("Education")}
-            {education.map((edu, i) => (
-              <div key={i} style={{ marginBottom: "16px" }}>
-                <p style={{ margin: "0 0 1px", fontSize: "14px", fontWeight: "700", color: BWG.black }}>{edu.degree}</p>
-                <p style={{ margin: "0 0 2px", fontSize: "13px", fontWeight: "600", color: BWG.gray700 }}>{edu.institution}</p>
-                <p style={{ margin: "0 0 2px", fontSize: "12px", color: BWG.gray600 }}>{edu.field}</p>
-                <span style={{ fontSize: "11px", color: BWG.gray600 }}>{edu.startYear}{edu.startYear && edu.endYear ? " – " : ""}{edu.endYear}</span>
-                {edu.gpa && <span style={{ fontSize: "11px", color: BWG.gray600 }}> · GPA: {edu.gpa}</span>}
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* Projects - only if not skipped and has items */}
-        {!skipProjects && projects.length > 0 && (
-          <>
-            {sectionHead("Projects")}
-            {projects.map((proj, i) => (
-              <div key={i} style={{ marginBottom: "16px", paddingLeft: "14px", borderLeft: `2px solid ${BWG.gray400}` }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
-                  <p style={{ margin: "0 0 3px", fontSize: "14px", fontWeight: "700", color: BWG.black }}>{proj.name}</p>
-                  {proj.link && <a href={proj.link} style={{ fontSize: "11px", color: BWG.gray700, fontWeight: "600", textDecoration: "none" }}>{proj.link}</a>}
-                </div>
-                {proj.tech && <p style={{ margin: "0 0 4px", fontSize: "12px", fontWeight: "600", color: BWG.gray700 }}>{proj.tech}</p>}
-                {proj.description && renderText(proj.description)}
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* Skills */}
-        {(skills.technical.length > 0 || skills.soft.length > 0) && (
-          <>
-            {sectionHead("Skills")}
-            {skills.technical.length > 0 && (
-              <div style={{ marginBottom: "12px" }}>
-                <p style={{ fontSize: "13px", fontWeight: "700", color: BWG.black, margin: "0 0 6px" }}>Technical</p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                  {skills.technical.map((s, i) => (
-                    <span key={i} style={{ fontSize: "11px", fontWeight: "600", padding: "3px 9px", borderRadius: "20px", background: BWG.gray200, color: BWG.black }}>{s}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {skills.soft.length > 0 && (
-              <div>
-                <p style={{ fontSize: "13px", fontWeight: "700", color: BWG.black, margin: "0 0 6px" }}>Soft</p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                  {skills.soft.map((s, i) => (
-                    <span key={i} style={{ fontSize: "11px", fontWeight: "600", padding: "3px 9px", borderRadius: "20px", background: BWG.gray200, color: BWG.black }}>{s}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Languages */}
-        {languages.length > 0 && (
-          <>
-            {sectionHead("Languages")}
-            {languages.map((lang, i) => (
-              <div key={i} style={{ marginBottom: "12px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                  <span style={{ fontSize: "13px", fontWeight: "700", color: BWG.black }}>{lang.name}</span>
-                  <span style={{ fontSize: "11px", color: BWG.gray600, fontWeight: "600" }}>{lang.level}</span>
-                </div>
-                <div style={{ height: "4px", background: BWG.gray300, borderRadius: "2px" }}>
-                  <div style={{ width: lang.level === "Native" ? "100%" : lang.level === "Fluent" ? "90%" : lang.level === "Advanced" ? "75%" : lang.level === "Intermediate" ? "55%" : "30%", height: "4px", background: BWG.gray700, borderRadius: "2px" }} />
-                </div>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* Certifications */}
-        {certifications.length > 0 && (
-          <>
-            {sectionHead("Certifications")}
-            {certifications.map((cert, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px", flexWrap: "wrap" }}>
+      {!skipExperience && experience.length > 0 && (
+        <>
+          <SectionTitle title="Work Experience" />
+          {experience.map((exp, i) => (
+            <div key={i} style={{ marginBottom: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap" }}>
                 <div>
-                  <p style={{ margin: 0, fontSize: "13px", fontWeight: "700", color: BWG.black }}>{cert.name}</p>
-                  {cert.issuer && <p style={{ margin: 0, fontSize: "12px", color: BWG.gray600 }}>{cert.issuer}</p>}
+                  <p style={{ margin: "0 0 2px", fontSize: "13px", fontWeight: "700", color: BWG.black }}>{exp.role}</p>
+                  <p style={{ margin: "0 0 4px", fontSize: "12px", fontWeight: "600", color: BWG.gray700 }}>{exp.company}</p>
                 </div>
-                {cert.date && <span style={{ fontSize: "11px", color: BWG.gray600, fontWeight: "600" }}>{cert.date}</span>}
+                <span style={{ fontSize: "11px", color: BWG.gray600, whiteSpace: "nowrap" }}>
+                  {exp.startDate}{exp.startDate && exp.endDate ? " – " : ""}{exp.endDate}
+                </span>
               </div>
-            ))}
-          </>
-        )}
-
-        {/* Interests */}
-        {interests.length > 0 && (
-          <>
-            {sectionHead("Interests")}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-              {interests.map((interest, i) => (
-                <span key={i} style={{ fontSize: "11px", fontWeight: "600", padding: "4px 10px", borderRadius: "20px", background: BWG.gray200, color: BWG.black }}>{interest}</span>
-              ))}
+              {exp.description && textLine(exp.description)}
             </div>
-          </>
-        )}
-      </div>
+          ))}
+        </>
+      )}
+
+      {education.length > 0 && (
+        <>
+          <SectionTitle title="Education" />
+          {education.map((edu, i) => (
+            <div key={i} style={{ marginBottom: "14px" }}>
+              <p style={{ margin: "0 0 1px", fontSize: "13px", fontWeight: "700", color: BWG.black }}>{edu.degree}</p>
+              <p style={{ margin: "0 0 2px", fontSize: "12px", fontWeight: "600", color: BWG.gray700 }}>{edu.institution}</p>
+              <p style={{ margin: "0 0 2px", fontSize: "12px", color: BWG.gray600 }}>{edu.field}</p>
+              <span style={{ fontSize: "11px", color: BWG.gray600 }}>{edu.startYear}{edu.startYear && edu.endYear ? " – " : ""}{edu.endYear}</span>
+              {edu.gpa && <span style={{ fontSize: "11px", color: BWG.gray600 }}> · GPA: {edu.gpa}</span>}
+            </div>
+          ))}
+        </>
+      )}
+
+      {!skipProjects && projects.length > 0 && (
+        <>
+          <SectionTitle title="Projects" />
+          {projects.map((proj, i) => (
+            <div key={i} style={{ marginBottom: "14px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap" }}>
+                <p style={{ margin: "0 0 3px", fontSize: "13px", fontWeight: "700", color: BWG.black }}>{proj.name}</p>
+                {proj.link && <a href={proj.link} style={{ fontSize: "11px", color: BWG.gray700, textDecoration: "none" }}>{proj.link}</a>}
+              </div>
+              {proj.tech && <p style={{ margin: "0 0 4px", fontSize: "12px", fontWeight: "600", color: BWG.gray700 }}>{proj.tech}</p>}
+              {proj.description && textLine(proj.description)}
+            </div>
+          ))}
+        </>
+      )}
+
+      {(skills.technical.length > 0 || skills.soft.length > 0) && (
+        <>
+          <SectionTitle title="Skills" />
+          {skills.technical.length > 0 && (
+            <div style={{ marginBottom: "8px" }}>
+              <span style={{ fontSize: "12px", fontWeight: "700", color: BWG.black }}>Technical: </span>
+              {commaList(skills.technical)}
+            </div>
+          )}
+          {skills.soft.length > 0 && (
+            <div>
+              <span style={{ fontSize: "12px", fontWeight: "700", color: BWG.black }}>Soft: </span>
+              {commaList(skills.soft)}
+            </div>
+          )}
+        </>
+      )}
+
+      {languages.length > 0 && (
+        <>
+          <SectionTitle title="Languages" />
+          {languages.map((lang, i) => (
+            <div key={i} style={{ fontSize: "12px", marginBottom: "4px" }}>
+              <span style={{ fontWeight: "700", color: BWG.black }}>{lang.name}</span>: <span style={{ color: BWG.gray700 }}>{lang.level}</span>
+            </div>
+          ))}
+        </>
+      )}
+
+      {certifications.length > 0 && (
+        <>
+          <SectionTitle title="Certifications" />
+          {certifications.map((cert, i) => (
+            <div key={i} style={{ marginBottom: "8px", fontSize: "12px" }}>
+              <span style={{ fontWeight: "700", color: BWG.black }}>{cert.name}</span>
+              {cert.issuer && <span style={{ color: BWG.gray600 }}> – {cert.issuer}</span>}
+              {cert.date && <span style={{ color: BWG.gray600 }}> ({cert.date})</span>}
+            </div>
+          ))}
+        </>
+      )}
+
+      {interests.length > 0 && (
+        <>
+          <SectionTitle title="Interests" />
+          <p style={{ fontSize: "12px", color: BWG.gray800 }}>{interests.join(", ")}</p>
+        </>
+      )}
     </div>
   );
 }
@@ -639,10 +693,30 @@ export default function ResumeBuilder() {
   const [aiEnhancingAll, setAiEnhancingAll] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
   const [enhanceMessage, setEnhanceMessage] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const resumeRef = useRef(null);
 
-  const update = (section, key, val) =>
+  const update = (section, key, val) => {
     setData(d => ({ ...d, [section]: { ...d[section], [key]: val } }));
+    // Validation
+    if (section === "contact" && key === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (val && !emailRegex.test(val)) {
+        setEmailError("Please enter a valid email (must contain @ and domain).");
+      } else {
+        setEmailError("");
+      }
+    }
+    if (section === "contact" && key === "phone") {
+      // Only digits allowed; validation ensures exactly 10 digits if any entered
+      if (val && val.length !== 10) {
+        setPhoneError("Phone number must be exactly 10 digits.");
+      } else {
+        setPhoneError("");
+      }
+    }
+  };
 
   const updateArr = (section, idx, key, val) =>
     setData(d => {
@@ -711,34 +785,28 @@ export default function ResumeBuilder() {
     setShowPreview(true);
   };
 
-  // AI Enhance All: improves grammar, logic, style without adding new facts
+  // ── AI Enhance All (targets all free‑text fields) ────────────────────────
   const handleAIEnhanceAll = async () => {
     setAiEnhancingAll(true);
-    // Collect all text fields that can be enhanced
     const textsToEnhance = [];
 
-    // Objective
     if (data.objective.text?.trim()) {
       textsToEnhance.push({ section: "objective", path: ["objective", "text"], content: data.objective.text });
     }
-    // Experience descriptions
+    if (data.personal.summary?.trim()) {
+      textsToEnhance.push({ section: "summary", path: ["personal", "summary"], content: data.personal.summary });
+    }
     data.experience.forEach((exp, idx) => {
       if (exp.description?.trim()) {
         textsToEnhance.push({ section: "experience", path: ["experience", idx, "description"], content: exp.description });
       }
     });
-    // Project descriptions
     data.projects.forEach((proj, idx) => {
       if (proj.description?.trim()) {
-        textsToEnhance.push({ section: "project", path: ["projects", idx, "description"], content: proj.description });
+        textsToEnhance.push({ section: "projects", path: ["projects", idx, "description"], content: proj.description });
       }
     });
-    // Certification names? Optional – we'll enhance only free text, not names.
-    // Also personal summary if present
-    if (data.personal.summary?.trim()) {
-      textsToEnhance.push({ section: "summary", path: ["personal", "summary"], content: data.personal.summary });
-    }
-    
+
     if (textsToEnhance.length === 0) {
       setEnhanceMessage("No text fields to enhance (add objective, experience, projects, or summary).");
       setTimeout(() => setEnhanceMessage(""), 3000);
@@ -755,28 +823,51 @@ export default function ResumeBuilder() {
 
       if (response.ok) {
         const result = await response.json();
-        // Update state with enhanced texts
         setData(prev => {
           const newData = { ...prev };
           result.enhanced.forEach(({ path, enhancedText }) => {
             if (path.length === 2 && path[0] === "objective") {
               newData.objective.text = enhancedText;
+            } else if (path.length === 2 && path[0] === "personal" && path[1] === "summary") {
+              newData.personal.summary = enhancedText;
             } else if (path.length === 3 && path[0] === "experience") {
               newData.experience[path[1]].description = enhancedText;
             } else if (path.length === 3 && path[0] === "projects") {
               newData.projects[path[1]].description = enhancedText;
-            } else if (path.length === 2 && path[0] === "personal" && path[1] === "summary") {
-              newData.personal.summary = enhancedText;
             }
           });
           return newData;
         });
-        setEnhanceMessage(`Enhanced ${result.enhanced.length} section(s).`);
+        setEnhanceMessage(`Enhanced ${result.enhanced.length} section(s) via backend.`);
         setTimeout(() => setEnhanceMessage(""), 3000);
       } else {
-        // Fallback simulation
+        throw new Error("Backend API error, using LanguageTool fallback.");
+      }
+    } catch (err) {
+      console.warn("Backend enhance failed, using LanguageTool public API:", err);
+      try {
+        const enhancedTexts = await enhanceWithLanguageTool(textsToEnhance);
+        setData(prev => {
+          const newData = { ...prev };
+          enhancedTexts.forEach(({ path, enhancedText }) => {
+            if (path.length === 2 && path[0] === "objective") {
+              newData.objective.text = enhancedText;
+            } else if (path.length === 2 && path[0] === "personal" && path[1] === "summary") {
+              newData.personal.summary = enhancedText;
+            } else if (path.length === 3 && path[0] === "experience") {
+              newData.experience[path[1]].description = enhancedText;
+            } else if (path.length === 3 && path[0] === "projects") {
+              newData.projects[path[1]].description = enhancedText;
+            }
+          });
+          return newData;
+        });
+        setEnhanceMessage(`LanguageTool enhanced ${enhancedTexts.length} field(s).`);
+        setTimeout(() => setEnhanceMessage(""), 3000);
+      } catch (ltErr) {
+        console.error("LanguageTool fallback failed:", ltErr);
         const enhanced = textsToEnhance.map(item => ({
-          ...item,
+          path: item.path,
           enhancedText: simulateEnhancement(item.content)
         }));
         setData(prev => {
@@ -784,43 +875,72 @@ export default function ResumeBuilder() {
           enhanced.forEach(({ path, enhancedText }) => {
             if (path.length === 2 && path[0] === "objective") {
               newData.objective.text = enhancedText;
+            } else if (path.length === 2 && path[0] === "personal" && path[1] === "summary") {
+              newData.personal.summary = enhancedText;
             } else if (path.length === 3 && path[0] === "experience") {
               newData.experience[path[1]].description = enhancedText;
             } else if (path.length === 3 && path[0] === "projects") {
               newData.projects[path[1]].description = enhancedText;
-            } else if (path.length === 2 && path[0] === "personal" && path[1] === "summary") {
-              newData.personal.summary = enhancedText;
             }
           });
           return newData;
         });
-        setEnhanceMessage(`Applied basic fixes to ${textsToEnhance.length} section(s).`);
+        setEnhanceMessage(`Basic fixes applied to ${textsToEnhance.length} field(s).`);
         setTimeout(() => setEnhanceMessage(""), 3000);
       }
-    } catch (err) {
-      console.error("AI enhance all failed:", err);
-      setEnhanceMessage("AI enhancement failed. Check console.");
-      setTimeout(() => setEnhanceMessage(""), 4000);
     } finally {
       setAiEnhancingAll(false);
     }
   };
 
-  // Simple local fallback enhancement (capitalize first letter, add period, fix basic grammar)
+  // ── LanguageTool public API fallback ──────────────────────────────────────
+  const enhanceWithLanguageTool = async (texts) => {
+    const results = [];
+    for (const item of texts) {
+      const { content, path } = item;
+      const params = new URLSearchParams({
+        text: content,
+        language: "en-US",
+        enabledOnly: "false",
+      });
+      const response = await fetch("https://api.languagetool.org/v2/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params,
+      });
+      if (!response.ok) throw new Error(`LanguageTool API error: ${response.status}`);
+      const json = await response.json();
+      let corrected = content;
+      if (json.matches && json.matches.length > 0) {
+        const matches = json.matches
+          .filter(m => m.replacements && m.replacements.length > 0)
+          .sort((a, b) => b.offset - a.offset);
+        for (const match of matches) {
+          const replacement = match.replacements[0].value;
+          const offset = match.offset;
+          const length = match.length;
+          corrected = corrected.slice(0, offset) + replacement + corrected.slice(offset + length);
+        }
+      }
+      results.push({ path, enhancedText: corrected });
+    }
+    return results;
+  };
+
   const simulateEnhancement = (text) => {
     let enhanced = text.trim();
     if (!enhanced.endsWith('.') && !enhanced.endsWith('!') && !enhanced.endsWith('?')) enhanced += '.';
     enhanced = enhanced.charAt(0).toUpperCase() + enhanced.slice(1);
-    // Simple fixes: replace " i " with " I "
     enhanced = enhanced.replace(/\s(i)\s/gi, ' I ');
     return enhanced;
   };
 
-  // Completion percentage (ignoring skip flags for simplicity)
   const completionPct = () => {
     let filled = 0, total = 6;
     if (data.personal.firstName) filled++;
-    if (data.contact.email) filled++;
+    if (data.contact.email && !emailError) filled++;
+    // Phone counts only if it's exactly 10 digits
+    if (data.contact.phone && data.contact.phone.length === 10 && !phoneError) filled++;
     if (data.objective.text) filled++;
     if (!data.skipExperience && data.experience.length > 0) filled++;
     if (data.education.length > 0) filled++;
@@ -829,8 +949,6 @@ export default function ResumeBuilder() {
   };
   const pct = completionPct();
 
-
-  // Section renderers (only show skip checkboxes for experience and projects)
   const renderPersonal = () => (
     <div>
       <div style={styles.sectionTitle}><Icon.User /> Personal Information</div>
@@ -857,12 +975,77 @@ export default function ResumeBuilder() {
       <p style={styles.sectionSub}>How employers can reach you.</p>
       <div style={styles.card}>
         <div style={{ ...styles.grid2, marginBottom: "16px" }}>
-          <Field label="Email Address"><input style={styles.input} type="email" value={data.contact.email} onChange={e => update("contact", "email", e.target.value)} placeholder="john.doe@email.com" /></Field>
-          <Field label="Phone Number"><input style={styles.input} value={data.contact.phone} onChange={e => update("contact", "phone", e.target.value)} placeholder="+1 234 567 8900" /></Field>
+          <Field label="Email Address">
+            <input
+              style={{ ...styles.input, ...(emailError ? styles.inputError : {}) }}
+              type="email"
+              value={data.contact.email}
+              onChange={e => update("contact", "email", e.target.value)}
+              placeholder="john.doe@email.com"
+            />
+            {emailError && <div style={styles.errorText}>{emailError}</div>}
+          </Field>
+          <Field label="Phone Number">
+            <input
+              style={{ ...styles.input, ...(phoneError ? styles.inputError : {}) }}
+              type="tel"
+              inputMode="numeric"
+              maxLength={10}
+              value={data.contact.phone}
+              onChange={e => {
+                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                update("contact", "phone", digits);
+              }}
+              onKeyDown={e => {
+                if (!/\d/.test(e.key) && e.key !== "Backspace" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Delete" && e.key !== "Tab") {
+                  e.preventDefault();
+                }
+              }}
+              placeholder="Enter 10-digit number"
+            />
+            {phoneError && <div style={styles.errorText}>{phoneError}</div>}
+          </Field>
         </div>
         <div style={{ ...styles.grid2, marginBottom: "16px" }}>
-          <Field label="City"><input style={styles.input} value={data.contact.city} onChange={e => update("contact", "city", e.target.value)} placeholder="Dubai" /></Field>
-          <Field label="Country"><input style={styles.input} value={data.contact.country} onChange={e => update("contact", "country", e.target.value)} placeholder="UAE" /></Field>
+          <Field label="Country">
+            <select
+              style={styles.select}
+              value={data.contact.country}
+              onChange={e => {
+                update("contact", "country", e.target.value);
+                update("contact", "city", "");
+              }}
+            >
+              <option value="">Select country</option>
+              {COUNTRIES.map(c => (
+                <option key={c.code} value={c.code}>
+                  {countryFlag(c.code)} {c.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="City">
+            {CITIES_BY_COUNTRY[data.contact.country]?.length > 0 ? (
+              <select
+                style={styles.select}
+                value={data.contact.city}
+                onChange={e => update("contact", "city", e.target.value)}
+              >
+                <option value="">Select city</option>
+                {CITIES_BY_COUNTRY[data.contact.country].map(city => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                style={styles.input}
+                value={data.contact.city}
+                onChange={e => update("contact", "city", e.target.value)}
+                placeholder="e.g. Dubai"
+                disabled={!data.contact.country}
+              />
+            )}
+          </Field>
         </div>
         <div style={{ ...styles.grid2 }}>
           <Field label="LinkedIn URL"><input style={styles.input} value={data.contact.linkedin} onChange={e => update("contact", "linkedin", e.target.value)} placeholder="linkedin.com/in/johndoe" /></Field>
@@ -924,7 +1107,6 @@ export default function ResumeBuilder() {
           </button>
         </>
       )}
-      
     </div>
   );
 
@@ -972,7 +1154,10 @@ export default function ResumeBuilder() {
   const renderSkills = () => (
     <div>
       <div style={styles.sectionTitle}><Icon.Zap /> Skills</div>
-      <p style={styles.sectionSub}>Highlight your technical and soft skills.</p>
+      <p style={styles.sectionSub}>Highlight your professional skills relevant to the job.</p>
+      <div style={{ marginBottom: "16px", padding: "12px 16px", background: "#F0F4FF", borderRadius: "10px", fontSize: "13px", color: C.navy }}>
+        💡 <strong>Tip:</strong> Focus on work-related skills (e.g., Project Management, Data Analysis). Avoid generic hobbies like chess or hiking.
+      </div>
       <div style={styles.card}>
         <label style={{ ...styles.fieldLabel, marginBottom: "10px" }}>Technical Skills</label>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "12px" }}>
@@ -1126,8 +1311,6 @@ export default function ResumeBuilder() {
     <div>
       <div style={styles.sectionTitle}><Icon.Sparkles /> Generate Your Resume</div>
       <p style={styles.sectionSub}>Review your information and generate a professional resume.</p>
-
-      {/* Completion Score */}
       <div style={{ ...styles.card, background: `${C.gray100}` }}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
           <span style={{ fontSize: "14px", fontWeight: "700", color: C.navy }}>Profile Completion</span>
@@ -1140,9 +1323,7 @@ export default function ResumeBuilder() {
           {pct < 50 ? "Add more essential sections to create a stronger resume." : pct < 80 ? "Looking good! A few more details will make it shine." : "Excellent! Your resume is well-rounded."}
         </p>
       </div>
-
-      {/* Actions */}
-      <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "16px" }}>
+      <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "16px", marginTop: "16px" }}>
         <button style={styles.accentBtn} onClick={handleGenerate} disabled={generating}>
           <Icon.Sparkles />
           {generating ? "Generating..." : "Generate Resume"}
@@ -1161,15 +1342,12 @@ export default function ResumeBuilder() {
           <Icon.Sparkles />
           {aiEnhancingAll ? "Enhancing all text..." : "AI Enhance All"}
         </button>
-
-        {/* Render near the button */}
-        {enhanceMessage && (
-          <div style={{ marginTop: "10px", padding: "8px 12px", background: "#e8f0fe", borderRadius: "8px", fontSize: "13px" }}>
-            {enhanceMessage}
-          </div>
-        )}
       </div>
-
+      {enhanceMessage && (
+        <div style={{ marginTop: "10px", padding: "8px 12px", background: "#e8f0fe", borderRadius: "8px", fontSize: "13px" }}>
+          {enhanceMessage}
+        </div>
+      )}
       {savedMsg && (
         <div style={{ marginTop: "14px", padding: "12px 18px", borderRadius: "10px", background: `${C.accent}18`, border: `1px solid ${C.accent}`, color: C.navy, fontSize: "13px", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px" }}>
           <Icon.Check /> {savedMsg}
@@ -1209,235 +1387,43 @@ export default function ResumeBuilder() {
           #resume-preview, #resume-preview * { visibility: visible; }
           #resume-preview { position: fixed; left: 0; top: 0; width: 100%; }
         }
-        
-        /* Responsive Media Queries */
-        @media screen and (max-width: 1200px) {
-          .resume-preview-container {
-            max-width: 100%;
-            overflow-x: auto;
-          }
-        }
-        
         @media screen and (max-width: 1024px) {
-          .layout {
-            flex-direction: column !important;
-          }
-          
-          .sidebar {
-            width: 100% !important;
-            min-width: 100% !important;
-            flex-direction: row !important;
-            flex-wrap: wrap !important;
-            padding: 16px 20px !important;
-            gap: 8px !important;
-            border-right: none !important;
-            border-bottom: 1px solid ${C.border} !important;
-          }
-          
-          .sidebar button {
-            flex: 1 !important;
-            min-width: 140px !important;
-            justify-content: center !important;
-            margin-right: 0 !important;
-            border-left: none !important;
-            border-bottom: 3px solid transparent !important;
-            border-radius: 8px 8px 0 0 !important;
-            padding: 10px 16px !important;
-          }
-          
-          .sidebar button[style*="border-left: 3px solid"] {
-            border-left: none !important;
-            border-bottom: 3px solid ${C.accent} !important;
-          }
-          
-          .main {
-            padding: 24px 20px !important;
-          }
-          
-          .header {
-            padding: 16px 20px !important;
-            flex-wrap: wrap !important;
-            gap: 12px !important;
-          }
-          
-          .logoText {
-            font-size: 18px !important;
-          }
-          
-          .logoText span:last-child {
-            display: none !important;
-          }
+          .layout { flex-direction: column !important; }
+          .sidebar { width: 100% !important; min-width: 100% !important; flex-direction: row !important; flex-wrap: wrap !important; padding: 16px 20px !important; gap: 8px !important; border-right: none !important; border-bottom: 1px solid ${C.border} !important; }
+          .sidebar button { flex: 1 !important; min-width: 140px !important; justify-content: center !important; margin-right: 0 !important; border-left: none !important; border-bottom: 3px solid transparent !important; border-radius: 8px 8px 0 0 !important; padding: 10px 16px !important; }
+          .sidebar button[style*="border-left: 3px solid"] { border-left: none !important; border-bottom: 3px solid ${C.accent} !important; }
+          .main { padding: 24px 20px !important; }
+          .header { padding: 16px 20px !important; flex-wrap: wrap !important; gap: 12px !important; }
+          .logoText { font-size: 18px !important; }
         }
-        
         @media screen and (max-width: 768px) {
-          .grid2, .grid3 {
-            grid-template-columns: 1fr !important;
-            gap: 12px !important;
-          }
-          
-          .card {
-            padding: 20px !important;
-          }
-          
-          .sectionTitle {
-            font-size: 20px !important;
-          }
-          
-          .sectionSub {
-            font-size: 13px !important;
-            margin-bottom: 20px !important;
-          }
-          
-          .sidebar {
-            padding: 12px 16px !important;
-          }
-          
-          .sidebar button {
-            min-width: 120px !important;
-            font-size: 13px !important;
-            padding: 8px 12px !important;
-          }
-          
-          .header > div:last-child {
-            width: 100% !important;
-            justify-content: space-between !important;
-          }
-          
-          .entryCard {
-            padding: 16px !important;
-          }
-          
-          .primaryBtn, .accentBtn {
-            padding: 10px 20px !important;
-            font-size: 14px !important;
-            width: 100% !important;
-            justify-content: center !important;
-          }
-          
-          .resume-preview-container {
-            transform: scale(0.7);
-            transform-origin: top left;
-          }
+          .grid2, .grid3 { grid-template-columns: 1fr !important; gap: 12px !important; }
+          .card { padding: 20px !important; }
+          .sectionTitle { font-size: 20px !important; }
+          .sectionSub { font-size: 13px !important; margin-bottom: 20px !important; }
+          .sidebar { padding: 12px 16px !important; }
+          .sidebar button { min-width: 120px !important; font-size: 13px !important; padding: 8px 12px !important; }
+          .header > div:last-child { width: 100% !important; justify-content: space-between !important; }
+          .entryCard { padding: 16px !important; }
+          .primaryBtn, .accentBtn { padding: 10px 20px !important; font-size: 14px !important; width: 100% !important; justify-content: center !important; }
+          .resume-preview-container { transform: scale(0.7); transform-origin: top left; }
         }
-        
         @media screen and (max-width: 480px) {
-          .header {
-            padding: 12px 16px !important;
-          }
-          
-          .logoText {
-            font-size: 16px !important;
-          }
-          
-          .sidebar {
-            padding: 10px 12px !important;
-          }
-          
-          .sidebar button {
-            min-width: 100px !important;
-            font-size: 12px !important;
-            gap: 6px !important;
-          }
-          
-          .sidebar button svg {
-            width: 14px !important;
-            height: 14px !important;
-          }
-          
-          .main {
-            padding: 20px 16px !important;
-          }
-          
-          .sectionTitle {
-            font-size: 18px !important;
-          }
-          
-          .card {
-            padding: 16px !important;
-            border-radius: 12px !important;
-          }
-          
-          .input, .textarea, .select {
-            padding: 8px 12px !important;
-            font-size: 13px !important;
-          }
-          
-          .fieldLabel {
-            font-size: 11px !important;
-          }
-          
-          .tag {
-            font-size: 12px !important;
-            padding: 3px 10px !important;
-          }
-          
-          .entryHeader span {
-            font-size: 12px !important;
-          }
-          
-          .deleteBtn {
-            width: 26px !important;
-            height: 26px !important;
-          }
-          
-          .addBtn {
-            padding: 8px 14px !important;
-            font-size: 12px !important;
-          }
-          
-          .resume-preview-container {
-            transform: scale(0.5);
-          }
-          
-          /* Hide sidebar section text on very small screens */
-          .sidebar > div:first-child {
-            display: none !important;
-          }
-        }
-        
-        @media screen and (max-width: 360px) {
-          .sidebar button {
-            min-width: 80px !important;
-          }
-          
-          .sidebar button span {
-            display: none !important;
-          }
-          
-          .sidebar button svg {
-            width: 18px !important;
-            height: 18px !important;
-          }
-        }
-        
-        /* Resume Preview Responsive */
-        @media screen and (max-width: 900px) {
-          #resume-preview > div {
-            width: 100% !important;
-            min-width: 100% !important;
-            transform: scale(1);
-          }
-          
-          #resume-preview {
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch !important;
-          }
-          
-          #resume-preview > div > div:first-child {
-            padding: 24px 20px !important;
-          }
-          
-          #resume-preview > div > div:last-child {
-            padding: 16px 20px !important;
-          }
-          
-          #resume-preview h1 {
-            font-size: 24px !important;
-          }
-          
-          #resume-preview p {
-            word-break: break-word !important;
-          }
+          .header { padding: 12px 16px !important; }
+          .logoText { font-size: 16px !important; }
+          .sidebar { padding: 10px 12px !important; }
+          .sidebar button { min-width: 100px !important; font-size: 12px !important; gap: 6px !important; }
+          .sidebar button svg { width: 14px !important; height: 14px !important; }
+          .main { padding: 20px 16px !important; }
+          .sectionTitle { font-size: 18px !important; }
+          .card { padding: 16px !important; border-radius: 12px !important; }
+          .input, .textarea, .select { padding: 8px 12px !important; font-size: 13px !important; }
+          .fieldLabel { font-size: 11px !important; }
+          .tag { font-size: 12px !important; padding: 3px 10px !important; }
+          .entryHeader span { font-size: 12px !important; }
+          .deleteBtn { width: 26px !important; height: 26px !important; }
+          .addBtn { padding: 8px 14px !important; font-size: 12px !important; }
+          .resume-preview-container { transform: scale(0.5); }
         }
       `}</style>
 
@@ -1492,7 +1478,7 @@ export default function ResumeBuilder() {
           {showPreview && generated ? (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
-                <div style={styles.sectionTitle}><Icon.Sparkles /> Resume Preview (Black & White)</div>
+                <div style={styles.sectionTitle}><Icon.Sparkles /> Professional Resume Preview</div>
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
                   <button style={styles.primaryBtn} onClick={handleDownload}><Icon.Download /> Download PDF</button>
                   <button style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${C.accent}, ${C.navy})` }} onClick={handleSave}><Icon.Save /> Save</button>

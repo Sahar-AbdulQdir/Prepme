@@ -18,9 +18,17 @@ import {
   MdClose,
   MdWarning,
   MdMenu,
+  MdDoneAll,
 } from "react-icons/md";
 
-export default function Interview({ session, onSend, onEnd, onBack }) {
+export default function Interview({
+  session,
+  onSend,
+  onEnd,
+  onBack,
+  interviewEnded,         // NEW
+  onInterviewComplete,    // NEW
+}) {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [listening, setListening] = useState(false);
@@ -35,6 +43,10 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // NEW – countdown state for auto‑redirect
+  const [countdown, setCountdown] = useState(null);
+  const countdownRef = useRef(null);
+
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -43,25 +55,24 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
   const timerRef = useRef(null);
   const chatContainerRef = useRef(null);
 
-  // FIX 1: Memoize messages to prevent unnecessary re-renders
   const messages = useMemo(() => session.messages || [], [session.messages]);
 
-  // Responsive breakpoint detection
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+  // Responsive listener
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Question count
   useEffect(() => {
     const userMessages = messages.filter((m) => m.role === "user").length;
     setQuestionCount(userMessages);
   }, [messages]);
 
+  // Timer
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setElapsedSeconds((prev) => prev + 1);
@@ -69,15 +80,18 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
     return () => clearInterval(timerRef.current);
   }, []);
 
+  // Scroll to bottom on new messages
   useEffect(() => {
     const scrollToBottom = () => {
       if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        chatContainerRef.current.scrollTop =
+          chatContainerRef.current.scrollHeight;
       }
     };
     scrollToBottom();
   }, [messages, aiTyping]);
 
+  // Camera logic (unchanged)
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -129,14 +143,15 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
     }
   };
 
-  // FIX 2: Wrap speakMessage in useCallback with proper dependencies
+  // Speech synthesis (unchanged, but disabled when interview ended)
   const speakMessage = useCallback(
     (text) => {
-      if (!window.speechSynthesis || mode !== "speak") return;
+      if (interviewEnded || !window.speechSynthesis || mode !== "speak") return;
       window.speechSynthesis.cancel();
       const clean = text
         .replace(/<evaluation>[\s\S]*?<\/evaluation>/g, "")
         .trim();
+      if (!clean) return;
       const utterance = new SpeechSynthesisUtterance(clean);
       utterance.rate = 1;
       utterance.pitch = voiceGender === "male" ? 1 : 1.3;
@@ -153,52 +168,67 @@ export default function Interview({ session, onSend, onEnd, onBack }) {
       }
       window.speechSynthesis.speak(utterance);
     },
-    [mode, voiceGender]
+    [mode, voiceGender, interviewEnded]
   );
 
   useEffect(() => {
     const lastMsg = messages[messages.length - 1];
-    if (lastMsg && lastMsg.role === "assistant" && mode === "speak") {
+    if (
+      lastMsg &&
+      lastMsg.role === "assistant" &&
+      mode === "speak" &&
+      !interviewEnded
+    ) {
       speakMessage(lastMsg.content);
     }
-  }, [messages, mode, speakMessage]);
+  }, [messages, mode, speakMessage, interviewEnded]);
 
-const toggleVoiceInput = useCallback(() => {
-  if (!recognitionRef.current) return;
-  if (listening) {
-    recognitionRef.current.stop();
-    setListening(false);
-  } else {
-    setInput("");
-    recognitionRef.current.start();
-    setListening(true);
-  }
-}, [listening]);
+  const toggleVoiceInput = useCallback(() => {
+    if (interviewEnded) return;
+    if (!recognitionRef.current) return;
+    if (listening) {
+      recognitionRef.current.stop();
+      setListening(false);
+    } else {
+      setInput("");
+      recognitionRef.current.start();
+      setListening(true);
+    }
+  }, [listening, interviewEnded]);
 
-  // FIX 3: Wrap handleSend in useCallback
   const handleSend = useCallback(async () => {
-  let msg = input.trim();
-  if (mode === "speak" && !msg && listening) {
-    toggleVoiceInput();
-    return;
-  }
-  if (!msg || sending) return;
-  setInput("");
-  setSending(true);
-  setAiTyping(true);
-  setError(null);
-  try {
-    await onSend(session.id || session._id, msg);
-  } catch (err) {
-    setError(err.message || "Failed to send message.");
-  } finally {
-    setSending(false);
-    setAiTyping(false);
-    inputRef.current?.focus();
-  }
-}, [input, mode, listening, sending, onSend, session.id, session._id, toggleVoiceInput]);
+    let msg = input.trim();
+    if (interviewEnded) return;
+    if (mode === "speak" && !msg && listening) {
+      toggleVoiceInput();
+      return;
+    }
+    if (!msg || sending) return;
+    setInput("");
+    setSending(true);
+    setAiTyping(true);
+    setError(null);
+    try {
+      await onSend(session.id || session._id, msg);
+    } catch (err) {
+      setError(err.message || "Failed to send message.");
+    } finally {
+      setSending(false);
+      setAiTyping(false);
+      inputRef.current?.focus();
+    }
+  }, [
+    input,
+    mode,
+    listening,
+    sending,
+    onSend,
+    session.id,
+    session._id,
+    toggleVoiceInput,
+    interviewEnded,
+  ]);
 
-  // FIX 4: Add handleSend to useEffect dependencies
   useEffect(() => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -226,8 +256,9 @@ const toggleVoiceInput = useCallback(() => {
         streamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [handleSend]); // Added handleSend dependency
+  }, [handleSend]);
 
+  // Keyboard shortcuts
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === "Escape") {
@@ -239,6 +270,7 @@ const toggleVoiceInput = useCallback(() => {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
+  // Manual end call (unchanged)
   const handleEndCall = async () => {
     setEndNotice({
       type: "info",
@@ -251,16 +283,47 @@ const toggleVoiceInput = useCallback(() => {
     try {
       await onEnd?.(session.id || session._id);
     } catch {
-      setEndNotice({ type: "error", message: "Failed to end interview. Try again." });
+      setEndNotice({
+        type: "error",
+        message: "Failed to end interview. Try again.",
+      });
       return;
     }
     setTimeout(() => setEndNotice(null), 3000);
   };
 
+  // NEW: Automatic ending flow (when backend returns evaluation)
+  useEffect(() => {
+    if (interviewEnded) {
+      // Show countdown notification
+      setCountdown(5);
+      countdownRef.current = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownRef.current);
+            onInterviewComplete?.();  // navigate to sessions
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      // Clear manual end confirm if open
+      setShowEndConfirm(false);
+      clearInterval(timerRef.current);
+    }
+
+    return () => {
+      if (countdownRef.current) clearInterval(countdownRef.current);
+    };
+  }, [interviewEnded, onInterviewComplete]);
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   return (
@@ -268,7 +331,7 @@ const toggleVoiceInput = useCallback(() => {
       <style>{responsiveStyles}</style>
       <div className="interview-root" style={styles.root}>
         {/* End Confirm Modal */}
-        {showEndConfirm && (
+        {showEndConfirm && !interviewEnded && (
           <div className="modal-overlay" style={styles.modalOverlay}>
             <div className="modal-box" style={styles.modalBox}>
               <div style={styles.modalHeader}>
@@ -302,10 +365,43 @@ const toggleVoiceInput = useCallback(() => {
         )}
 
         {/* Toast Notice */}
-        {endNotice && (
-          <div className="toast" style={{ ...styles.toast, ...(endNotice.type === "error" ? styles.toastError : {}) }}>
+        {endNotice && !interviewEnded && (
+          <div
+            className="toast"
+            style={{
+              ...styles.toast,
+              ...(endNotice.type === "error" ? styles.toastError : {}),
+            }}
+          >
             {endNotice.type === "error" ? <MdWarning size={16} /> : null}
             {endNotice.message}
+          </div>
+        )}
+
+                {/* NEW: Auto-complete countdown overlay */}
+        {interviewEnded && countdown !== null && (
+          <div className="modal-overlay" style={styles.modalOverlay}>
+            <div className="modal-box" style={styles.modalBox}>
+              <div style={styles.modalHeader}>
+                <span style={styles.modalTitle}>
+                  <MdDoneAll size={20} style={{ marginRight: 8 }} />
+                  Interview Complete
+                </span>
+              </div>
+              <p style={styles.modalBody}>
+                Thank you for your answers! You will be redirected to your
+                sessions in {countdown} second{countdown !== 1 ? "s" : ""}.
+              </p>
+              <div style={styles.modalActions}>
+                <button
+                  className="confirm-btn"
+                  style={styles.confirmBtn}
+                  onClick={onInterviewComplete}
+                >
+                  Go Now
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -444,29 +540,40 @@ const toggleVoiceInput = useCallback(() => {
           </aside>
 
           {/* Chat Panel */}
+          {/* Chat Panel */}
           <section className="chat-panel" style={styles.chatPanel}>
-            <div className="chat-messages" ref={chatContainerRef} style={styles.chatMessages}>
+            <div
+              className="chat-messages"
+              ref={chatContainerRef}
+              style={styles.chatMessages}
+            >
               {messages.map((msg, i) => (
                 <MessageBubble key={i} msg={msg} isMobile={isMobile} />
               ))}
-              {aiTyping && (
+              {aiTyping && !interviewEnded && (
                 <div className="msg-row" style={styles.msgRow}>
                   <div className="avatar-ai" style={styles.avatarAI}>
                     <MdSmartToy size={16} color="white" />
                   </div>
                   <div className="typing-bubble" style={styles.typingBubble}>
                     <span className="dot" style={styles.dot} />
-                    <span className="dot" style={{ ...styles.dot, animationDelay: "0.2s" }} />
-                    <span className="dot" style={{ ...styles.dot, animationDelay: "0.4s" }} />
+                    <span
+                      className="dot"
+                      style={{ ...styles.dot, animationDelay: "0.2s" }}
+                    />
+                    <span
+                      className="dot"
+                      style={{ ...styles.dot, animationDelay: "0.4s" }}
+                    />
                   </div>
                 </div>
               )}
               <div ref={bottomRef} />
             </div>
 
-            {/* Input Area */}
+            {/* Input Area – disabled when interview ended */}
             <div className="input-area" style={styles.inputArea}>
-              {error && (
+              {error && !interviewEnded && (
                 <div className="error-bar" style={styles.errorBar}>
                   <MdWarning size={15} />
                   <span>{error}</span>
@@ -479,7 +586,11 @@ const toggleVoiceInput = useCallback(() => {
                     className="textarea"
                     style={styles.textarea}
                     rows={isMobile ? 2 : 3}
-                    placeholder="Type your answer... (Enter to send, Shift+Enter for new line)"
+                    placeholder={
+                      interviewEnded
+                        ? "Interview completed. Thank you!"
+                        : "Type your answer... (Enter to send, Shift+Enter for new line)"
+                    }
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -488,17 +599,23 @@ const toggleVoiceInput = useCallback(() => {
                         handleSend();
                       }
                     }}
-                    disabled={sending}
+                    disabled={sending || interviewEnded}
                   />
                   <button
                     className="send-btn"
                     style={{
                       ...styles.sendBtn,
-                      opacity: !input.trim() || sending ? 0.45 : 1,
-                      cursor: !input.trim() || sending ? "not-allowed" : "pointer",
+                      opacity:
+                        !input.trim() || sending || interviewEnded
+                          ? 0.45
+                          : 1,
+                      cursor:
+                        !input.trim() || sending || interviewEnded
+                          ? "not-allowed"
+                          : "pointer",
                     }}
                     onClick={handleSend}
-                    disabled={!input.trim() || sending}
+                    disabled={!input.trim() || sending || interviewEnded}
                   >
                     {sending ? (
                       <span style={{ fontSize: 13 }}>Sending...</span>
@@ -519,14 +636,29 @@ const toggleVoiceInput = useCallback(() => {
                       ...(listening ? styles.voiceBtnActive : {}),
                     }}
                     onClick={toggleVoiceInput}
-                    disabled={sending}
+                    disabled={sending || interviewEnded}
                   >
-                    {listening ? <MdMicOff size={isMobile ? 20 : 22} /> : <MdMic size={isMobile ? 20 : 22} />}
-                    <span>{listening ? "Stop Recording" : "Speak Answer"}</span>
+                    {listening ? (
+                      <MdMicOff size={isMobile ? 20 : 22} />
+                    ) : (
+                      <MdMic size={isMobile ? 20 : 22} />
+                    )}
+                    <span>
+                      {interviewEnded
+                        ? "Interview completed"
+                        : listening
+                        ? "Stop Recording"
+                        : "Speak Answer"}
+                    </span>
                   </button>
-                  {input && (
+                  {input && !interviewEnded && (
                     <div className="voice-preview" style={styles.voicePreview}>
-                      <span className="voice-preview-text" style={styles.voicePreviewText}>"{input}"</span>
+                      <span
+                        className="voice-preview-text"
+                        style={styles.voicePreviewText}
+                      >
+                        "{input}"
+                      </span>
                     </div>
                   )}
                 </div>
@@ -539,6 +671,7 @@ const toggleVoiceInput = useCallback(() => {
   );
 }
 
+// MessageBubble (unchanged, but you can optionally show a small “completed” indicator)
 function MessageBubble({ msg, isMobile }) {
   const isAI = msg.role === "assistant";
   const cleanContent = msg.content
@@ -554,7 +687,10 @@ function MessageBubble({ msg, isMobile }) {
         flexDirection: isAI ? "row" : "row-reverse",
       }}
     >
-      <div className={`avatar ${isAI ? "avatar-ai" : "avatar-user"}`} style={isAI ? styles.avatarAI : styles.avatarUser}>
+      <div
+        className={`avatar ${isAI ? "avatar-ai" : "avatar-user"}`}
+        style={isAI ? styles.avatarAI : styles.avatarUser}
+      >
         {isAI ? (
           <MdSmartToy size={isMobile ? 14 : 16} color="white" />
         ) : (
@@ -568,12 +704,29 @@ function MessageBubble({ msg, isMobile }) {
           ...(isAI ? styles.bubbleAI : styles.bubbleUser),
         }}
       >
-        <p style={{ lineHeight: 1.65, fontSize: isMobile ? 13 : 14 }}>{cleanContent}</p>
+        {cleanContent && (
+          <p style={{ lineHeight: 1.65, fontSize: isMobile ? 13 : 14 }}>
+            {cleanContent}
+          </p>
+        )}
         {hasEval && (
           <div className="eval-notice" style={styles.evalNotice}>
             <MdBarChart size={isMobile ? 12 : 14} />
-            <span>Evaluation complete — view your results above</span>
+            <span>Evaluation complete — view your results in Sessions</span>
           </div>
+        )}
+        {/* Fallback when no text but evaluation present */}
+        {!cleanContent && hasEval && (
+          <p
+            style={{
+              lineHeight: 1.65,
+              fontSize: isMobile ? 13 : 14,
+              fontStyle: "italic",
+              color: "#64748b",
+            }}
+          >
+            (The interviewer has concluded the session.)
+          </p>
         )}
       </div>
     </div>
