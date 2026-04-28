@@ -8,13 +8,13 @@ import useNewsletter from "../../hooks/useNewsletter";
 import NewsletterPopup from "../../components/ui/newsLettersPopup";
 <link href="https://fonts.googleapis.com/css2?family=Istok+Web:wght@400;700&display=swap" rel="stylesheet"></link>
 
-const FOOTER_LINKS = [
-  { label: "Features", href: "/#MainFeatures" },
-  { label: "Pricing", href: "/#LandingPrices" },
-  { label: "How it works", href: "/#how-it-works" },
-  { label: "Login", href: "/login" },
-  { label: "Media Press kit", href: "/press" },
-];
+// const FOOTER_LINKS = [
+//   { label: "Features", href: "/#MainFeatures" },
+//   { label: "Pricing", href: "/#LandingPrices" },
+//   { label: "How it works", href: "/#how-it-works" },
+//   { label: "Login", href: "/login" },
+//   { label: "Media Press kit", href: "/press" },
+// ];
 
 const styles = {
   Landingfooter: {
