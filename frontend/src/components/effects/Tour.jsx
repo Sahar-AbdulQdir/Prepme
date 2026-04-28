@@ -151,11 +151,11 @@ export default function Tour({ run, setRun }) {
       }
       
       .introjs-button {
-        display: none !important;
+        display: block;
       }
       
       .introjs-skipbutton {
-        display: none !important;
+        display:block;
       }
     `;
     document.head.appendChild(style);
