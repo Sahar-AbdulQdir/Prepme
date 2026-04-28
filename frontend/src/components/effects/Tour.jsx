@@ -150,13 +150,13 @@ export default function Tour({ run, setRun }) {
         max-width: 320px !important;
       }
       
-      .introjs-button {
-        display: block;
-      }
+      // .introjs-button {
+      //   display: none !important;
+      // }
       
-      .introjs-skipbutton {
-        display:block;
-      }
+      // .introjs-skipbutton {
+      //   display: none !important;
+      // }
     `;
     document.head.appendChild(style);
     
