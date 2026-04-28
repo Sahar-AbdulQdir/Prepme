@@ -3,166 +3,190 @@ import { useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import introJs from "intro.js/intro.js";
 import "intro.js/introjs.css";
-// import Mascot from "../assets/Images/mascot2.png";
 import MascotTooltip from "../ui/MascotTooltip";
 
 export default function Tour({ run, setRun }) {
   const introRef = useRef(null);
   const stepsRef = useRef([]);
+  const reactRootRef = useRef(null);   // single persistent React root
+  const containerRef = useRef(null);   // single persistent container div
 
   useEffect(() => {
-    if (run) {
-      console.log("Tour starting with Intro.js...");
-      
-      const tourSteps = [
-        {
-          element: '.nav-link[data-tour="resume"]',
-          intro: "📄 Start building your professional resume here. Create, edit, and download your resume instantly!",
-          position: "bottom",
-        },
-        {
-          element: '.cta-content',
-          intro: "🎯 Practice AI-powered interviews here. Get real-time feedback and improve your interview skills!",
-          position: "left",
-        },
-        {
-          element: '.widgets-row',
-          intro: "👤 Track your progress, view analytics, and manage your interview sessions from these cards!",
-          position: "top",
-        },
-      ];
+    if (!run) return;
 
-      const startIntroTour = (steps) => {
-        if (introRef.current) {
-          introRef.current.exit();
-        }
+    console.log("Tour starting with Intro.js...");
 
-        const intro = introJs();
-        introRef.current = intro;
+    const tourSteps = [
+      {
+        element: '.nav-link[data-tour="resume"]',
+        intro: "📄 Start building your professional resume here. Create, edit, and download your resume instantly!",
+        position: "bottom",
+      },
+      {
+        element: ".cta-content",
+        intro: "🎯 Practice AI-powered interviews here. Get real-time feedback and improve your interview skills!",
+        position: "left",
+      },
+      {
+        element: ".widgets-row",
+        intro: "👤 Track your progress, view analytics, and manage your interview sessions from these cards!",
+        position: "top",
+      },
+    ];
 
-        intro.setOptions({
-          steps: steps,
-          showProgress: true,
-          showBullets: false,
-          showButtons: false,
-          showStepNumbers: true,
-          exitOnOverlayClick: false,
-          exitOnEsc: true,
-          disableInteraction: true,
-          overlayOpacity: 0.5,
-          tooltipClass: 'custom-tooltip',
-          highlightClass: 'custom-highlight',
-        });
+    // ─── helpers ────────────────────────────────────────────────────────────
 
-    intro.onafterchange(() => {
-  const tooltipEl = document.querySelector('.introjs-tooltip');
-  if (!tooltipEl) return;
+    /** Wipe Intro.js default content and mount our React tooltip instead */
+    const renderMascot = (intro) => {
+      const tooltipEl = document.querySelector(".introjs-tooltip");
+      if (!tooltipEl) return;
 
-  const root = createRoot(tooltipEl);
-  const currentIndex = intro._currentStep; // 0‑based
-  const currentStepData = stepsRef.current[currentIndex]; // your step object
+      // Clear every child Intro.js rendered (title, text, bullets, buttons…)
+      while (tooltipEl.firstChild) tooltipEl.removeChild(tooltipEl.firstChild);
 
-  root.render(
-    <MascotTooltip
-      step={currentStepData}     // the { element, intro, position } object
-      intro={intro}
-      currentStep={currentIndex}
-      totalSteps={stepsRef.current.length}
-      onNext={() => intro.nextStep()}
-      onPrev={() => intro.previousStep()}
-      onSkip={() => intro.exit()}
-      onDone={() => intro.exit()}
-    />
-  );
-});
+      // Reuse the same container / React root across steps so React can diff
+      if (!containerRef.current) {
+        containerRef.current = document.createElement("div");
+      }
+      if (!tooltipEl.contains(containerRef.current)) {
+        tooltipEl.appendChild(containerRef.current);
+      }
 
-        intro.start();
+      if (!reactRootRef.current) {
+        reactRootRef.current = createRoot(containerRef.current);
+      }
 
-        intro.onexit(() => {
-          console.log("Tour completed or exited");
-          setRun(false);
-          introRef.current = null;
-        });
+      const currentIndex = intro._currentStep ?? 0;
+      const currentStepData = stepsRef.current[currentIndex];
 
-        intro.oncomplete(() => {
-          console.log("Tour completed successfully");
-          localStorage.setItem("seen_home_tour", "true");
-          setRun(false);
-          introRef.current = null;
-        });
-      };
+      reactRootRef.current.render(
+        <MascotTooltip
+          step={currentStepData}
+          intro={intro}
+          currentStep={currentIndex}
+          totalSteps={stepsRef.current.length}
+          onNext={() => intro.nextStep()}
+          onPrev={() => intro.previousStep()}
+          onSkip={() => intro.exit()}
+          onDone={() => intro.exit()}
+        />
+      );
+    };
 
-      const verifyTargets = () => {
-        const validSteps = [];
-        for (let i = 0; i < tourSteps.length; i++) {
-          const step = tourSteps[i];
-          const element = document.querySelector(step.element);
-          if (element) {
-            console.log(`✅ Step ${i + 1} target found: ${step.element}`);
-            validSteps.push(step);
-          } else {
-            console.warn(`❌ Step ${i + 1} target NOT found: ${step.element}`);
-          }
-        }
+    /** Verify DOM targets, then start the tour */
+    const verifyAndStart = () => {
+      const validSteps = tourSteps.filter((step) => {
+        const found = !!document.querySelector(step.element);
+        console.log(found ? `✅ found: ${step.element}` : `❌ missing: ${step.element}`);
+        return found;
+      });
 
-        if (validSteps.length === 0) {
-          console.error("No valid targets found, tour cancelled");
-          setRun(false);
-        } else {
-          console.log(`Starting tour with ${validSteps.length} steps`);
-          stepsRef.current = validSteps;
-          startIntroTour(validSteps); // Now calling the actual function
-        }
-      };
+      if (validSteps.length === 0) {
+        console.error("No valid targets found, tour cancelled");
+        setRun(false);
+        return;
+      }
 
-      // Give DOM time to render
-      setTimeout(verifyTargets, 300);
-    }
+      stepsRef.current = validSteps;
+
+      if (introRef.current) introRef.current.exit();
+
+      const intro = introJs();
+      introRef.current = intro;
+
+      intro.setOptions({
+        steps: validSteps,
+        showProgress: false,
+        showBullets: false,
+        // Hide ALL of Intro.js's own UI — we render everything ourselves
+        showButtons: false,
+        showStepNumbers: false,
+        exitOnOverlayClick: false,
+        exitOnEsc: true,
+        disableInteraction: true,
+        overlayOpacity: 0.5,
+        tooltipClass: "custom-tooltip",
+        highlightClass: "custom-highlight",
+      });
+
+      // Render our mascot every time the step changes
+      intro.onafterchange(() => renderMascot(intro));
+
+      intro.start();
+      // Also render immediately after start (onafterchange fires after transition)
+      requestAnimationFrame(() => renderMascot(intro));
+
+      intro.onexit(() => {
+        console.log("Tour exited");
+        // Unmount React to avoid memory leaks
+        reactRootRef.current?.unmount();
+        reactRootRef.current = null;
+        containerRef.current = null;
+        introRef.current = null;
+        setRun(false);
+      });
+
+      intro.oncomplete(() => {
+        console.log("Tour completed");
+        localStorage.setItem("seen_home_tour", "true");
+        reactRootRef.current?.unmount();
+        reactRootRef.current = null;
+        containerRef.current = null;
+        introRef.current = null;
+        setRun(false);
+      });
+    };
+
+    setTimeout(verifyAndStart, 300);
   }, [run, setRun]);
 
-  // Clean up tour on unmount
+  // Clean up on unmount
   useEffect(() => {
     return () => {
       if (introRef.current) {
         introRef.current.exit();
         introRef.current = null;
       }
+      reactRootRef.current?.unmount();
+      reactRootRef.current = null;
+      containerRef.current = null;
     };
   }, []);
 
-  // Custom CSS for the tour
+  // Custom CSS overrides
   useEffect(() => {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       .custom-highlight {
-        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5), 0 0 15px 5px rgba(34, 197, 94, 0.5) !important;
+        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5),
+                    0 0 15px 5px rgba(34, 197, 94, 0.5) !important;
         border-radius: 8px !important;
       }
-      
       .introjs-helperLayer {
-        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5), 0 0 15px 5px rgba(34, 197, 94, 0.3) !important;
+        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5),
+                    0 0 15px 5px rgba(34, 197, 94, 0.3) !important;
         border-radius: 8px !important;
       }
-      
+      /* Let our React component own all sizing/bg */
       .introjs-tooltip {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(17, 28, 51, 0.95)) !important;
-        min-width: 300px !important;
-        max-width: 320px !important;
+        background: transparent !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        min-width: unset !important;
+        max-width: unset !important;
       }
-      
-      .introjs-button {
+      /* Hide every default Intro.js element */
+      .introjs-tooltip .introjs-tooltiptext,
+      .introjs-tooltip .introjs-tooltipbuttons,
+      .introjs-tooltip .introjs-bullets,
+      .introjs-tooltip .introjs-progress,
+      .introjs-tooltip .introjs-skipbutton,
+      .introjs-tooltip .introjs-arrow {
         display: none !important;
       }
-      
-      // .introjs-skipbutton {
-      //   display: none !important;
-      // }
     `;
     document.head.appendChild(style);
-    
-    return () => {
-      document.head.removeChild(style);
-    };
+    return () => document.head.removeChild(style);
   }, []);
 
   return null;
