@@ -120,11 +120,15 @@ export default function App() {
     navigate("/");
   };
 
-  const handleStartTour = () => {
-    setRunTour(true);
-    setShowMascot(false);
-  };
+const handleStartTour = () => {
+  setShowMascot(false);
 
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      setRunTour(true);
+    }, 300);
+  });
+};
   const handleSessionComplete = () => {
     fetchSessions();
   };
