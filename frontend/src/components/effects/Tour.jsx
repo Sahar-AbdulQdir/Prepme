@@ -108,28 +108,28 @@ export default function Tour({ run, setRun }) {
         });
       };
 
-      const verifyTargets = () => {
-        const validSteps = [];
-        for (let i = 0; i < tourSteps.length; i++) {
-          const step = tourSteps[i];
-          const element = document.querySelector(step.element);
-          if (element) {
-            console.log(`✅ Step ${i + 1} target found: ${step.element}`);
-            validSteps.push(step);
-          } else {
-            console.warn(`❌ Step ${i + 1} target NOT found: ${step.element}`);
-          }
-        }
+const verifyTargets = () => {
+  let attempts = 0;
+  const maxAttempts = 30; // 3 seconds total
 
-        if (validSteps.length === 0) {
-          console.error("No valid targets found, tour cancelled");
-          setRun(false);
-        } else {
-          console.log(`Starting tour with ${validSteps.length} steps`);
-          stepsRef.current = validSteps;
-          startIntroTour(validSteps);
-        }
-      };
+  const check = () => {
+    const validSteps = tourSteps.filter(step => document.querySelector(step.element));
+
+    if (validSteps.length === tourSteps.length) {
+      // All steps ready
+      stepsRef.current = validSteps;
+      startIntroTour(validSteps);
+    } else if (attempts < maxAttempts) {
+      attempts++;
+      setTimeout(check, 100);
+    } else {
+      console.error('Timed out waiting for tour targets');
+      setRun(false);
+    }
+  };
+
+  check();
+};
 
       // Give DOM time to render
       setTimeout(verifyTargets, 300);
