@@ -2,8 +2,8 @@
 import React from "react";
 
 import Logo from "../../assets/Images/Plogo.png";
-import { FaInstagram, FaTiktok } from "react-icons/fa6";
-import { Link } from "react-router-dom";
+// import { FaInstagram, FaTiktok } from "react-icons/fa6";
+// import { Link } from "react-router-dom";
 import useNewsletter from "../../hooks/useNewsletter";
 import NewsletterPopup from "../../components/ui/newsLettersPopup";
 <link href="https://fonts.googleapis.com/css2?family=Istok+Web:wght@400;700&display=swap" rel="stylesheet"></link>

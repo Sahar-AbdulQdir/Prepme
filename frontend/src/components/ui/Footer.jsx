@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaInstagram, FaTiktok } from "react-icons/fa";
+// import { FaInstagram, FaTiktok } from "react-icons/fa";
 import useNewsletter from "../../hooks/useNewsletter";
 import NewsletterPopup from "./newsLettersPopup";
 import Logo from "../../assets/Images/Plogo.png";
