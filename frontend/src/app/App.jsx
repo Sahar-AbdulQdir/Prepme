@@ -124,9 +124,7 @@ const handleStartTour = () => {
   setShowMascot(false);
 
   requestAnimationFrame(() => {
-    setTimeout(() => {
-      setRunTour(true);
-    }, 300);
+    setRunTour(true);
   });
 };
   const handleSessionComplete = () => {
@@ -166,7 +164,7 @@ const hideNavbar = authPages.includes(location.pathname);
       <Routes>
         {/* Public Routes - Accessible without authentication */}
         <Route path="/landing" element={<Landing />} />
-        <Route path="/" element={<Navigate to="/landing" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         {/* <Route path="/" element={<HomePage />} /> */}
         <Route path="/login" element={<Login onAuthSuccess={handleAuthSuccess} />} />
         <Route path="/pricing" element={<PricingPage />} />
