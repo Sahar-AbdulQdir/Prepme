@@ -162,7 +162,7 @@ const hideNavbar = authPages.includes(location.pathname);
       <Routes>
         {/* Public Routes - Accessible without authentication */}
         <Route path="/landing" element={<Landing />} />
-        <Route path="/" element={<Navigate to="/resume" replace />} />
+        <Route path="/" element={<Navigate to="/landing" replace />} />
         {/* <Route path="/" element={<HomePage />} /> */}
         <Route path="/login" element={<Login onAuthSuccess={handleAuthSuccess} />} />
         <Route path="/pricing" element={<PricingPage />} />

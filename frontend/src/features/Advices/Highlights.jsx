@@ -17,52 +17,63 @@ const Highlights = () => {
   const podcasts = [
     {
       id: 1,
-      title: "How to Make Time for Everything?",
-      videoSrc: "/H_vid1.mp4",
+      title: "Why Do You Want To Work Here?",
+      videoSrc: "/Vid-1.mp4",
       duration: "0:15",
-      sourceUrl: "https://www.youtube.com/watch?v=mAGVDDhujzc"
+      sourceUrl: "https://www.youtube.com/watch?v=bHynP5KNe3k"
     },
     {
       id: 2,
-      title: "Why Dehydration Is Worse Than You Think!",
-      videoSrc: "/H_vid2.mp4",
+      title: "Tell Me About Yourself..",
+      videoSrc: "/Vid-2.mp4",
       duration: "0:12",
-      sourceUrl: "https://www.youtube.com/watch?v=JIKU7PVhEdU"
+      sourceUrl: "https://www.youtube.com/watch?v=es7XtrloDIQ"
     },
     {
       id: 3,
-      title: "The Habit That Will Make Or Break Your Entire 2026!",
-      videoSrc: "/H_vid3.mp4",
+      title: "Answering behavioral interview questions",
+      videoSrc: "/Vid-4.mp4",
       duration: "0:10",
-      sourceUrl: "https://www.youtube.com/watch?v=rtufWBLOXgw"
+      sourceUrl: "https://www.youtube.com/watch?v=WdyiUe7_3cA"
     },
     {
       id: 4,
-      title: "Change Your Brain: Neuroscientist Dr. Andrew Huberman",
-      videoSrc: "/H_vid4.mp4",
+      title: "A Good Answer To This Interview Question",
+      videoSrc: "/Vid-3.mp4",
       duration: "0:18",
-      sourceUrl: "https://www.youtube.com/watch?v=SwQhKFMxmDY"
+      sourceUrl: "https://www.youtube.com/watch?v=5v-wyR5emRw"
     }
   ];
 
   // Play video with sound on hover
-  const handleHoverPlay = (index) => {
-    const video = videoRefs.current[index];
-    if (!video) return;
+const handleHoverPlay = (index) => {
+  const video = videoRefs.current[index];
+  if (!video) return;
 
-    video.muted = false; // unmute for hover preview
-    video.play();
-  };
+  video.muted = true;
 
-  // Stop video and reset on mouse leave
-  const handleHoverStop = (index) => {
-    const video = videoRefs.current[index];
-    if (!video) return;
+  const playPromise = video.play();
 
+  if (playPromise !== undefined) {
+    playPromise
+      .then(() => {
+        video.muted = false;
+      })
+      .catch(() => {});
+  }
+};
+
+const handleHoverStop = (index) => {
+  const video = videoRefs.current[index];
+  if (!video) return;
+
+  if (!video.paused) {
     video.pause();
-    video.currentTime = 0;
-    video.muted = true; // mute again for next hover
-  };
+  }
+
+  video.currentTime = 0;
+  video.muted = true;
+};
 
   // Open podcast source link in a new tab
   const handlePodcastClick = (e, url) => {
@@ -145,7 +156,7 @@ const Highlights = () => {
             color: var(--l1);
             font-family: 'Istok Web', sans-serif;
             box-sizing: border-box;
-            padding: 2rem 1.25rem;
+            padding: .5rem 1.25rem;
           }
 
           /* Main layout: places laptop mockup and descriptive content side-by-side */
@@ -177,7 +188,7 @@ const Highlights = () => {
             font-weight: 600;
           }
 
-          .content h1 {
+          .content h2 {
             font-size: clamp(2rem, 5vw, 3.2rem);
             margin: 0 0 1.25rem 0;
             font-weight: 700;
@@ -198,7 +209,7 @@ const Highlights = () => {
             background: #ffffff00;
             display: flex;
             flex-direction: row;
-            gap: 1.875rem;
+            gap: 1.675rem;
             margin-top: 2.5rem;
             flex-wrap: wrap;
             justify-content: flex-start;
@@ -210,7 +221,7 @@ const Highlights = () => {
           }
 
           .stat-number {
-            font-size: clamp(1.2rem, 3vw, 2rem);
+            font-size: clamp(1rem, 3vw, 1.6rem);
             font-weight: 700;
             color: var(--l1);
             display: flex;
@@ -657,7 +668,7 @@ const Highlights = () => {
               gap: 1rem;
             }
 
-            .content h1 {
+            .content h2 {
               margin-bottom: 0.5rem;
             }
 
@@ -690,18 +701,17 @@ const Highlights = () => {
       <div className="podcast-highlights-container">
         <div className="Main-Laptop-container">
           {/* Content above the laptop mockup */}
-          <div className="content">
+<div className="content">
             <div className="badge glow-on-hover">
-              <i className="fas fa-headphones"></i> Trending Worldwide
+              <i className="fas fa-briefcase"></i> Top Interview Resources
             </div>
 
-            <h1>From The <span className="circle-sketch-highlight">World</span> To Your Ears</h1>
+            <h2>Ace Your <span className="circle-sketch-highlight">Interview</span></h2>
 
             <p className="description">
-              Discover the most compelling conversations from around the globe. 
-              Our podcast highlights bring you thought-provoking discussions, inspiring stories, 
-              and expert insights from every corner of the world. Hover over any video to preview 
-              and click to listen to the full episode.
+              Expert-curated podcasts to help you prepare, practice, and perform your best. 
+              From mastering the STAR method to nailing your first impression — get the insider tips 
+              hiring managers actually want to hear. Hover over any video to preview and click to watch the full episode.
             </p>
 
             {/* stats-row section with icons */}
@@ -709,23 +719,23 @@ const Highlights = () => {
               <div className="stat-item">
                 <span className="stat-number">
                   <FontAwesomeIcon icon={faPodcast} className="stat-icon" />
-                  500+
+                  200+
                 </span>
-                <span className="stat-label">Episodes</span>
+                <span className="stat-label">Expert Tips</span>
               </div>
               <div className="stat-item">
                 <span className="stat-number">
                   <FontAwesomeIcon icon={faUsers} className="stat-icon" />
-                  2M+
+                  1M+
                 </span>
-                <span className="stat-label">Listeners</span>
+                <span className="stat-label">Users Helped</span>
               </div>
               <div className="stat-item">
                 <span className="stat-number">
                   <FontAwesomeIcon icon={faGlobeAmericas} className="stat-icon" />
-                  50+
+                  30+
                 </span>
-                <span className="stat-label">Countries</span>
+                <span className="stat-label">Industries Covered</span>
               </div>
             </div>
           </div>

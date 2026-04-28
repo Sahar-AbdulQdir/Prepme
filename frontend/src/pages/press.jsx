@@ -7,6 +7,7 @@ import {
   FiLayout, FiClock, FiPlay, FiFlag
 } from "react-icons/fi";
 import Mascot from "../assets/Images/mascot2.png";
+import "../styles/Suggestions.css"
 
 // ─── Product screenshots – swap these import paths for your real images ───────
 import InterviewImg from "../../src/assets/Images/pressInterview.png";
@@ -23,8 +24,8 @@ const COLORS = {
   text:      "#0d1a20",
   cardBg:    "#FFFFFF",
   border:    "#e0e3d8",
-  muted:     "#4d6470",
-  accent:    "#0f7a9d",
+  muted:     "#344d5b",
+  accent:    "#0b6a8d",
   light:     "#e8f3f8",
 };
 
@@ -808,20 +809,7 @@ export default function Press() {
             <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: "clamp(24px,4vw,40px)", fontWeight: 700, color: "#fff", marginBottom: 16 }}>Ready to Cover PrepMe?</h2>
             <p style={{ fontSize: 16, color: "rgba(255,255,255,0.65)", marginBottom: 34, lineHeight: 1.65 }}>Reach out for founder access, product demos, embargoed materials, or any editorial requests.</p>
             <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-              <Btn
-                icon={FiMail}
-                variant="outline"
-                className="white-btn"
-                style={{
-                  borderColor: "rgba(255,255,255,0.4)",
-                  color: "#fff",
-                  fontSize: 15,
-                  padding: "13px 28px"
-                }}
-                href={PRESS_EMAIL}
-              >
-                prepme.cc@gmail.com
-              </Btn>
+
             </div>
           </AnimWrap>
         </div>
@@ -830,8 +818,8 @@ export default function Press() {
       {/* ── FOOTER ─────────────────────────────────────────────────────────── */}
       <footer style={{ background: "#060f15", padding: "48px 5% 32px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 30, marginBottom: 36, paddingBottom: 28, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-            <div>
+          {/* <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 30, marginBottom: 36, paddingBottom: 28, borderBottom: "1px solid rgba(255,255,255,0.08)" }}> */}
+            {/* <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
                 <div style={{ width: 28, height: 28, borderRadius: 6, background: COLORS.primary, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <FiZap size={14} color={COLORS.lime} />
@@ -839,16 +827,16 @@ export default function Press() {
                 <span style={{ fontWeight: 700, fontSize: 16, color: "#fff" }}>PrepMe</span>
               </div>
               <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", maxWidth: 260, lineHeight: 1.65 }}>AI-powered career readiness platform for the next generation of professionals.</p>
-            </div>
+            </div> */}
 
             {/* Social icons — Instagram + TikTok only */}
-            <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-              {/* Instagram */}
+            {/* <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+           
               <a href={INSTA_URL} target="_blank" rel="noopener noreferrer"
                 style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", transition: "background 0.2s" }}
                 onMouseEnter={e => e.currentTarget.style.background = "rgba(228,64,95,0.3)"}
                 onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.07)"}>
-                {/* Instagram SVG icon */}
+             
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
                   <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
@@ -856,25 +844,25 @@ export default function Press() {
                 </svg>
               </a>
 
-              {/* TikTok */}
+         
               <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer"
                 style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", transition: "background 0.2s" }}
                 onMouseEnter={e => e.currentTarget.style.background = "rgba(105,201,208,0.25)"}
                 onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.07)"}>
-                {/* TikTok SVG icon */}
+             
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.7)">
                   <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
                 </svg>
               </a>
-            </div>
-          </div>
+            </div> */}
+          {/* </div> */}
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2024 PrepMe. All rights reserved.</p>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2026 PrepMe. All rights reserved.</p>
             <div style={{ display: "flex", gap: 20 }}>
               {[
                 { label: "Back to Landing page", href: "/landing" },
-                { label: "Privacy Policy",   href: "/privacy" },
+                // { label: "Privacy Policy",   href: "/privacy" },
                 { label: "prepme.cc@gmail.com",  href: PRESS_EMAIL, color: "#fff" },
               ].map(({ label, href, color }) => (
                 <a key={label} href={href} style={{ fontSize: 12, color: color || "rgba(255,255,255,0.4)", textDecoration: "none", transition: "color 0.2s" }}

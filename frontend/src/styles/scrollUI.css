@@ -1,8 +1,8 @@
 :root {
-  --primary-dark: #0a0e27;
-  --secondary-dark: #1a1f3d;
-  --accent-blue: #1e3a8a;
-  --glow-blue: #3b82f6;
+  --primary-dark: #041522;
+  --secondary-dark: #041522;
+  --accent-blue: #041522;
+  --glow-blue: #084977;
 }
 
 html {
@@ -50,7 +50,7 @@ html {
   width: 50px;
   height: 50px;
 
-  background: linear-gradient(135deg, var(--accent-blue), var(--glow-blue));
+  background: linear-gradient(135deg, #023457, var(--glow-blue));
   border: none;
   border-radius: 50%;
   cursor: pointer;

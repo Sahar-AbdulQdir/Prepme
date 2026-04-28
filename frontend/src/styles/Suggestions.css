@@ -54,3 +54,13 @@ border-bottom-right-radius: 70px;}
 border-top-right-radius: 70px;
 border-bottom-left-radius: 70px;
 }
+
+.white-btn {
+  color: #fff;
+  text-decoration: none;
+}
+
+.white-btn svg {
+  color: #fff;
+  fill: currentColor;
+}

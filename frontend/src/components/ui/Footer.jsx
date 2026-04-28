@@ -116,7 +116,7 @@ export default function Footer() {
       {/* CSS */}
       <style>{`
         .footer {
-          background: linear-gradient(135deg, #021c2b 0%, #0a2a3b 50%, #0d3a52 100%);
+          background: linear-gradient(135deg, #041522 0%, #163652 100%);
           padding: 80px 5vw 40px;
           position: relative;
           overflow: hidden;

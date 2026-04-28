@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { api, authHeaders } from "../services/api";
 import SplashCursor from "../components/effects/splashCursor";
+import Footer from "../components/ui/Footer"
 
 // ─── Icons (SVG inline, no emojis) ───────────────────────────────────────────
 const Icon = {
@@ -1427,7 +1428,7 @@ export default function ResumeBuilder() {
         }
       `}</style>
 
-      <header style={styles.header} className="header">
+      {/* <header style={styles.header} className="header"> */}
         <SplashCursor
           SIM_RESOLUTION={224}
           DYE_RESOLUTION={640}
@@ -1439,7 +1440,7 @@ export default function ResumeBuilder() {
           SPLAT_FORCE={3000}
           COLOR_UPDATE_SPEED={8}
         />
-        <div style={styles.logoText} className="logoText">
+        {/* <div style={styles.logoText} className="logoText">
           cv<span style={styles.logoAccent}>craft</span>
           <span style={{ fontSize: "12px", fontWeight: "500", color: `${C.white}77`, marginLeft: "10px", letterSpacing: "0.5px" }}>AI-Powered Resume Builder</span>
         </div>
@@ -1456,7 +1457,7 @@ export default function ResumeBuilder() {
             </button>
           )}
         </div>
-      </header>
+      </header> */}
 
       <div style={styles.layout} className="layout">
         <aside style={styles.sidebar} className="sidebar">
@@ -1505,6 +1506,9 @@ export default function ResumeBuilder() {
           )}
         </main>
       </div>
+      <Footer/>
     </div>
+
+  
   );
 }

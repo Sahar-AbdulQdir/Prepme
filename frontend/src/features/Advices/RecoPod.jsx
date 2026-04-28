@@ -1,6 +1,6 @@
 import React from "react";
 import { PiRankingFill } from "react-icons/pi";
-import PodImg from "../../assets/Images/Pod_Suggestion.png";
+import PodImg from "../../assets/Images/RecoImg.png";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Istok+Web:wght@400;700&display=swap');
@@ -175,7 +175,7 @@ const styles = `
 
   .ia-img {
     width: 100%;
-    max-width: 28rem;
+    max-width: 18rem;
     height: auto;
     border-radius: 0.75rem;
     object-fit: cover;
@@ -247,7 +247,7 @@ const styles = `
     }
     
     .ia-img {
-      max-width: 26rem;
+      max-width: 14rem;
     }
   }
 
@@ -270,7 +270,7 @@ const styles = `
     }
     
     .ia-img {
-      max-width: 24rem;
+      max-width: 14rem;
     }
   }
 
@@ -291,7 +291,7 @@ const styles = `
     }
     
     .ia-img {
-      max-width: 28rem;
+      max-width: 16rem;
     }
   }
 
@@ -310,7 +310,7 @@ const styles = `
     }
     
     .ia-img {
-      max-width: 30rem;
+      max-width: 14rem;
     }
   }
 
@@ -440,32 +440,22 @@ const styles = `
   }
 `;
 
-// const TIPS = [
-//   "Research the company deeply",
-//   "Practice STAR method answers",
-//   "Prepare 5 smart questions",
-//   "Dress one level above the role",
-//   "Arrive 10 minutes early",
-//   "Follow up with a thank-you note",
-//   "Master your elevator pitch",
-//   "Know your salary expectations",
-// ];
 
 const ADVICE = [
   {
-    label: "Before",
-    highlight: "Preparation",
-    body: "Study the job description word-for-word and mirror its language back in your answers. Research recent company news so you can connect your goals to theirs.",
+    label: "Tip #1",
+    highlight: "Think Like a Recruiter",
+    body: "Matthew's core lesson: hiring managers aren't looking for the most qualified — they're looking for the least risky. Frame every answer to show you're a safe, high-impact hire.",
   },
   {
-    label: "During",
-    highlight: "STAR Method",
-    body: "Structure every behavioural answer with a clear Situation, Task, Action, and Result. Quantify outcomes whenever possible — numbers make stories memorable.",
+    label: "Tip #2",
+    highlight: "The Hero's Journey",
+    body: "Turn your career story into a narrative arc. MoveUp teaches you to use storytelling frameworks so your interview answers are memorable, structured, and emotionally compelling.",
   },
   {
-    label: "After",
-    highlight: "Follow-Up",
-    body: "Send a personalised thank-you email within 24 hours. Reference something specific from the conversation to show you were genuinely engaged.",
+    label: "Tip #3",
+    highlight: "Negotiate Everything",
+    body: "Don't stop at the offer — MoveUp covers salary negotiation, promotions, and counteroffers. Most candidates leave money on the table by accepting the first number they hear.",
   },
 ];
 
@@ -474,19 +464,19 @@ const InterviewAdvice = () => {
     <>
       <style>{styles}</style>
       <section className="ia-section">
-        <h2 className="ia-title">
-          Ace Your Next{" "}
-          <span className="ia-highlight">Interview</span>
-        </h2>
+<h2 className="ia-title">
+  Learn from the{" "}
+  <span className="ia-highlight">Hired</span> Podcast
+</h2>
 
-        <p className="ia-subtitle">
-          Practical advice to help you walk in confident and walk out hired.
-        </p>
+<p className="ia-subtitle">
+  Insider strategies from a former executive recruiter to help you interview smarter and earn more.
+</p>
 
-        <p className="ia-rank-row">
-          Top <PiRankingFill className="ia-rank-icon" style={{ margin: "0 4px" }} />{" "}
-          <span className="ia-rank-label">Career Tips</span>
-        </p>
+<p className="ia-rank-row">
+  <PiRankingFill className="ia-rank-icon" style={{ margin: "0 4px" }} />{" "}
+  <span className="ia-rank-label">#1 Interview Podcast on Apple</span>
+</p>
 
         <div className="ia-content">
           <div className="ia-card">
@@ -509,16 +499,6 @@ const InterviewAdvice = () => {
             className="ia-img"
           />
         </div>
-
-        {/* Uncomment to show tips grid */}
-        {/* <div className="ia-tips-grid">
-          {TIPS.map((tip, i) => (
-            <div className="ia-tip-pill" key={i}>
-              <span className="ia-tip-dot" />
-              {tip}
-            </div>
-          ))}
-        </div> */}
       </section>
     </>
   );
