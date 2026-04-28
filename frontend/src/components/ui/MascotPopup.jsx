@@ -38,25 +38,11 @@ export default function MascotPopup({ visible, onStartTour, onClose }) {
           />
         </div>
 
-        <div
-          style={{
-            fontWeight: "bold",
-            marginBottom: "6px",
-            fontSize: "16px",
-            textAlign: "center",
-          }}
-        >
+        <div style={{ fontWeight: "bold", marginBottom: "6px", fontSize: "16px", textAlign: "center" }}>
           👋 Hey! I'm PrepMate
         </div>
 
-        <div
-          style={{
-            fontSize: "13px",
-            marginBottom: "10px",
-            opacity: 0.9,
-            textAlign: "center",
-          }}
-        >
+        <div style={{ fontSize: "13px", marginBottom: "10px", opacity: 0.9, textAlign: "center" }}>
           Want a quick guided tour of your dashboard?
         </div>
 
@@ -79,7 +65,7 @@ export default function MascotPopup({ visible, onStartTour, onClose }) {
           <button style={yesBtn} onClick={handleStart}>
             Start Tour 🚀
           </button>
-
+   
           <button style={noBtn} onClick={onClose}>
             Not now
           </button>
@@ -103,8 +89,7 @@ const bubbleStyle = {
   borderRadius: "20px",
   width: "280px",
   fontSize: "14px",
-  boxShadow:
-    "0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)",
+  boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)",
   backdropFilter: "blur(10px)",
 };
 
