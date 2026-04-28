@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 
@@ -13,11 +12,13 @@ import ResumeBuilder from "../pages/resume";
 import Tour from "../components/effects/Tour";
 import MascotPopup from "../components/ui/MascotPopup";
 import ScrollToHash from "../utils/scrollToHash";
-import Press from "../pages/press"
+import Press from "../pages/press";
 import ScrollUI from "../components/layout/ScrollUI";
 import MascotQuote from "../components/ui/Mascot";
+
 // API
 import { api, authHeaders } from "../services/api";
+
 // Navbar
 import MainNavbar from "../components/ui/MainNavbar";
 
@@ -30,17 +31,22 @@ const ProtectedRoute = ({ user, children }) => {
 };
 
 // Wrapper component for HomePage with Tour and Mascot
-const HomePageWrapper = ({ user, sessions, onRefresh, runTour, setRunTour, showMascot, onStartTour, onCloseMascot }) => {
+const HomePageWrapper = ({
+  user,
+  sessions,
+  onRefresh,
+  runTour,
+  setRunTour,
+  showMascot,
+  onStartTour,
+  onCloseMascot,
+}) => {
   return (
     <>
-      <HomePage 
-        user={user} 
-        sessions={sessions} 
-        onRefresh={onRefresh}
-      />
+      <HomePage user={user} sessions={sessions} onRefresh={onRefresh} />
       <Tour run={runTour} setRun={setRunTour} />
-      <MascotPopup 
-        visible={showMascot} 
+      <MascotPopup
+        visible={showMascot}
         onStartTour={onStartTour}
         onClose={onCloseMascot}
       />
@@ -61,11 +67,9 @@ export default function App() {
   useEffect(() => {
     const storedUser = localStorage.getItem("prepme_user");
     const storedToken = localStorage.getItem("prepme_token");
-
     if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
     }
-
     setLoading(false);
   }, []);
 
@@ -131,24 +135,25 @@ export default function App() {
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontFamily: 'DM Sans, sans-serif',
-        color: '#073B5A'
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          fontFamily: "DM Sans, sans-serif",
+          color: "#073B5A",
+        }}
+      >
         Loading...
       </div>
     );
   }
 
   // Hide navbar on landing page, login page, and root path
-const authPages = ["/login", "/press", "/landing"];
-const hideNavbar = authPages.includes(location.pathname);
+  const authPages = ["/login", "/press", "/landing"];
+  const hideNavbar = authPages.includes(location.pathname);
 
-  
   return (
     <div className="app">
       {!hideNavbar && (
@@ -156,26 +161,27 @@ const hideNavbar = authPages.includes(location.pathname);
       )}
       <MascotQuote user={user} />
       <ScrollToHash />
-
-      <ScrollUI /> 
-
+      <ScrollUI />
       <Routes>
         {/* Public Routes - Accessible without authentication */}
         <Route path="/landing" element={<Landing />} />
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Navigate to="/landing" replace />} />
         {/* <Route path="/" element={<HomePage />} /> */}
-        <Route path="/login" element={<Login onAuthSuccess={handleAuthSuccess} />} />
+        <Route
+          path="/login"
+          element={<Login onAuthSuccess={handleAuthSuccess} />}
+        />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/advices" element={<Advices />} />
         <Route path="/resume" element={<ResumeBuilder />} />
         <Route path="/press" element={<Press />} />
-        
+
         {/* Protected Routes - Require authentication */}
         <Route
           path="/home2"
           element={
             <ProtectedRoute user={user}>
-              <HomePageWrapper 
+              <HomePageWrapper
                 user={user}
                 sessions={sessions}
                 onRefresh={fetchSessions}
@@ -188,21 +194,19 @@ const hideNavbar = authPages.includes(location.pathname);
             </ProtectedRoute>
           }
         />
-            
         <Route
           path="/tool"
           element={
             <ProtectedRoute user={user}>
-              <Tool 
-                user={user} 
-                onLogout={handleLogout} 
+              <Tool
+                user={user}
+                onLogout={handleLogout}
                 onSessionComplete={handleSessionComplete}
                 navigate={navigate}
               />
             </ProtectedRoute>
           }
         />
-        
         <Route
           path="/resume"
           element={
@@ -211,7 +215,7 @@ const hideNavbar = authPages.includes(location.pathname);
             </ProtectedRoute>
           }
         />
-        
+
         {/* Catch-all route - redirect to appropriate page based on auth status */}
         <Route
           path="*"
