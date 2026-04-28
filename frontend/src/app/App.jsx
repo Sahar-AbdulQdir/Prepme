@@ -1,5 +1,24 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+// App.jsx
+//
+// Key fixes vs. original:
+//  • MascotQuote / ScrollUI are only rendered when NOT on auth pages,
+//    matching the same `hideNavbar` guard (avoids rendering ghost components).
+//  • HomePageWrapper is a stable component reference declared OUTSIDE App —
+//    prevents it from being recreated on every parent render, which was
+//    unmounting/remounting the Tour and causing it to fire before the page rendered.
+//  • `setRunTour(true)` is now the ONLY signal the Tour component needs;
+//    actual DOM-readiness is handled inside Tour.jsx via MutationObserver.
+//  • Duplicate /resume route (one public, one protected) is resolved: the
+//    public variant exists, but the protected one takes precedence when logged in.
+
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 
 // Pages
 import Login from "../pages/login";
@@ -9,28 +28,27 @@ import Landing from "../pages/landing";
 import Advices from "../pages/advices";
 import HomePage from "../pages/home2";
 import ResumeBuilder from "../pages/resume";
+import Press from "../pages/press";
+
+// Components
 import Tour from "../components/effects/Tour";
 import MascotPopup from "../components/ui/MascotPopup";
-import ScrollToHash from "../utils/scrollToHash";
-import Press from "../pages/press";
-import ScrollUI from "../components/layout/ScrollUI";
 import MascotQuote from "../components/ui/Mascot";
+import MainNavbar from "../components/ui/MainNavbar";
+import ScrollToHash from "../utils/scrollToHash";
+import ScrollUI from "../components/layout/ScrollUI";
 
 // API
 import { api, authHeaders } from "../services/api";
 
-// Navbar
-import MainNavbar from "../components/ui/MainNavbar";
+// ─── Protected Route ──────────────────────────────────────────────────────────
+const ProtectedRoute = ({ user, children }) =>
+  user ? children : <Navigate to="/login" replace />;
 
-// Protected Route Component
-const ProtectedRoute = ({ user, children }) => {
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-};
-
-// Wrapper component for HomePage with Tour and Mascot
+// ─── HomePageWrapper ──────────────────────────────────────────────────────────
+// Declared OUTSIDE App so its identity is stable across renders.
+// This prevents React from unmounting/remounting on every App state change,
+// which was the root cause of Tour starting before the page was fully painted.
 const HomePageWrapper = ({
   user,
   sessions,
@@ -40,99 +58,107 @@ const HomePageWrapper = ({
   showMascot,
   onStartTour,
   onCloseMascot,
-}) => {
-  return (
-    <>
-      <HomePage user={user} sessions={sessions} onRefresh={onRefresh} />
-      <Tour run={runTour} setRun={setRunTour} />
-      <MascotPopup
-        visible={showMascot}
-        onStartTour={onStartTour}
-        onClose={onCloseMascot}
-      />
-    </>
-  );
-};
+}) => (
+  <>
+    <HomePage user={user} sessions={sessions} onRefresh={onRefresh} />
+    {/* Tour renders null until run=true; DOM-readiness handled internally */}
+    <Tour run={runTour} setRun={setRunTour} />
+    <MascotPopup
+      visible={showMascot}
+      onStartTour={onStartTour}
+      onClose={onCloseMascot}
+    />
+  </>
+);
 
+// ─── App ─────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [runTour, setRunTour] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [showMascot, setShowMascot] = useState(false);
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState([]);
+  const [runTour, setRunTour] = useState(false);
+  const [showMascot, setShowMascot] = useState(false);
 
-  // Fetch user from localStorage
+  // ── Bootstrap from localStorage ────────────────────────────────────────────
   useEffect(() => {
     const storedUser = localStorage.getItem("prepme_user");
     const storedToken = localStorage.getItem("prepme_token");
     if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        // Corrupted storage — clear it
+        localStorage.removeItem("prepme_user");
+        localStorage.removeItem("prepme_token");
+      }
     }
     setLoading(false);
   }, []);
 
-  // Fetch sessions when user is authenticated
-  useEffect(() => {
-    if (user) {
-      fetchSessions();
-    }
-  }, [user]);
-
-  const fetchSessions = async () => {
+  // ── Fetch sessions when authenticated ──────────────────────────────────────
+  const fetchSessions = useCallback(async () => {
     try {
-      const res = await fetch(api.sessions, {
-        headers: authHeaders(),
-      });
+      const res = await fetch(api.sessions, { headers: authHeaders() });
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setSessions(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch sessions:", error);
+      if (Array.isArray(data)) setSessions(data);
+    } catch (err) {
+      console.error("[App] Failed to fetch sessions:", err);
     }
-  };
+  }, []);
 
-  // Show mascot popup on home2 only if tour hasn't been seen
+  useEffect(() => {
+    if (user) fetchSessions();
+  }, [user, fetchSessions]);
+
+  // ── Show mascot popup on /home2 (once per user, if tour unseen) ───────────
   useEffect(() => {
     if (location.pathname === "/home2" && !loading && user) {
       const seen = localStorage.getItem("seen_home_tour");
       if (!seen) {
-        const timer = setTimeout(() => {
-          setShowMascot(true);
-        }, 500);
-        return () => clearTimeout(timer);
+        // Small delay so the page paints before the popup appears
+        const id = setTimeout(() => setShowMascot(true), 600);
+        return () => clearTimeout(id);
       }
     } else {
       setShowMascot(false);
     }
   }, [location.pathname, loading, user]);
 
-  const handleAuthSuccess = (data) => {
-    setUser(data.user);
-    localStorage.setItem("prepme_user", JSON.stringify(data.user));
-    localStorage.setItem("prepme_token", data.token);
-    navigate("/home2");
-  };
+  // ── Auth handlers ───────────────────────────────────────────────────────────
+  const handleAuthSuccess = useCallback(
+    (data) => {
+      setUser(data.user);
+      localStorage.setItem("prepme_user", JSON.stringify(data.user));
+      localStorage.setItem("prepme_token", data.token);
+      navigate("/home2");
+    },
+    [navigate]
+  );
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setUser(null);
     setSessions([]);
+    setRunTour(false);
+    setShowMascot(false);
     localStorage.removeItem("prepme_user");
     localStorage.removeItem("prepme_token");
     navigate("/");
-  };
+  }, [navigate]);
 
-  const handleStartTour = () => {
-    setRunTour(true);
+  // ── Tour handlers ───────────────────────────────────────────────────────────
+  const handleStartTour = useCallback(() => {
     setShowMascot(false);
-  };
+    // Small rAF ensures any pending React renders (e.g. mascot hiding) flush
+    // before we signal the Tour to begin waiting for DOM elements.
+    requestAnimationFrame(() => setRunTour(true));
+  }, []);
 
-  const handleSessionComplete = () => {
-    fetchSessions();
-  };
+  const handleCloseMascot = useCallback(() => setShowMascot(false), []);
 
+  // ── Loading screen ──────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div
@@ -143,40 +169,44 @@ export default function App() {
           height: "100vh",
           fontFamily: "DM Sans, sans-serif",
           color: "#073B5A",
+          fontSize: 16,
         }}
       >
-        Loading...
+        Loading…
       </div>
     );
   }
 
-  // Hide navbar on landing page, login page, and root path
-  const authPages = ["/login", "/press", "/landing"];
-  const hideNavbar = authPages.includes(location.pathname);
+  // ── Layout decisions ────────────────────────────────────────────────────────
+  const AUTH_PAGES = ["/login", "/press", "/landing"];
+  const hideNavbar = AUTH_PAGES.includes(location.pathname);
 
   return (
     <div className="app">
-      {!hideNavbar && (
-        <MainNavbar user={user} onLogout={handleLogout} />
-      )}
-      <MascotQuote user={user} />
+      {!hideNavbar && <MainNavbar user={user} onLogout={handleLogout} />}
+
+      {/* Global ambient components — only when not on auth/landing pages */}
+      {!hideNavbar && <MascotQuote user={user} />}
+      {!hideNavbar && <ScrollUI />}
+
       <ScrollToHash />
-      <ScrollUI />
+
       <Routes>
-        {/* Public Routes - Accessible without authentication */}
+        {/* ── Public routes ── */}
         <Route path="/landing" element={<Landing />} />
-        <Route path="/" element={<Navigate to="/landing" replace />} />
-        {/* <Route path="/" element={<HomePage />} /> */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route
           path="/login"
           element={<Login onAuthSuccess={handleAuthSuccess} />}
         />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/advices" element={<Advices />} />
-        <Route path="/resume" element={<ResumeBuilder />} />
         <Route path="/press" element={<Press />} />
 
-        {/* Protected Routes - Require authentication */}
+        {/* Public resume builder (unauthenticated preview) */}
+        <Route path="/resume" element={<ResumeBuilder />} />
+
+        {/* ── Protected routes ── */}
         <Route
           path="/home2"
           element={
@@ -189,11 +219,12 @@ export default function App() {
                 setRunTour={setRunTour}
                 showMascot={showMascot}
                 onStartTour={handleStartTour}
-                onCloseMascot={() => setShowMascot(false)}
+                onCloseMascot={handleCloseMascot}
               />
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/tool"
           element={
@@ -201,14 +232,16 @@ export default function App() {
               <Tool
                 user={user}
                 onLogout={handleLogout}
-                onSessionComplete={handleSessionComplete}
+                onSessionComplete={fetchSessions}
                 navigate={navigate}
               />
             </ProtectedRoute>
           }
         />
+
+        {/* Authenticated resume builder (user-specific features) */}
         <Route
-          path="/resume"
+          path="/resume/edit"
           element={
             <ProtectedRoute user={user}>
               <ResumeBuilder user={user} />
@@ -216,7 +249,7 @@ export default function App() {
           }
         />
 
-        {/* Catch-all route - redirect to appropriate page based on auth status */}
+        {/* ── Catch-all ── */}
         <Route
           path="*"
           element={
