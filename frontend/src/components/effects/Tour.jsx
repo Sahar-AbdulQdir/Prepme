@@ -5,13 +5,6 @@ import introJs from "intro.js/intro.js";
 import "intro.js/introjs.css";
 import MascotTooltip from "../ui/MascotTooltip";
 
-export default function Tour({ run, setRun }) {
-  const introRef = useRef(null);
-  const stepsRef = useRef([]);
-  const rootRef = useRef(null); // persist the React root
-
-  // FIX 1: Move startIntroTour into a ref to prevent stale closure bugs
-  const startIntroTourRef = useRef(null);
 
   const tourSteps = [
     {
@@ -33,6 +26,14 @@ export default function Tour({ run, setRun }) {
       position: "top",
     },
   ];
+
+export default function Tour({ run, setRun }) {
+  const introRef = useRef(null);
+  const stepsRef = useRef([]);
+  const rootRef = useRef(null); // persist the React root
+
+  // FIX 1: Move startIntroTour into a ref to prevent stale closure bugs
+  const startIntroTourRef = useRef(null);
 
   // FIX 1: Assign the function to the ref so it's always up-to-date
   startIntroTourRef.current = (steps) => {
