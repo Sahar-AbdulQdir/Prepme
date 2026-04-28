@@ -1,334 +1,263 @@
-// components/effects/Tour.jsx
-//
-// Architecture:
-//   1. waitForElements()  — MutationObserver waits for every target selector.
-//   2. intro.js           — handles overlay + element highlighting only.
-//   3. React portal       — renders MascotTooltip independently of intro.js DOM.
-//   4. calculatePosition()— positions the portal tooltip near the highlighted element.
-//
-// This avoids ALL race conditions: the tour never starts before the page is ready,
-// and the tooltip is never injected into intro.js's fragile internal DOM tree.
-
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-} from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useRef, useState } from "react";
+import { createRoot } from "react-dom/client";
 import introJs from "intro.js/intro.js";
 import "intro.js/introjs.css";
 import MascotTooltip from "../ui/MascotTooltip";
 
-// ─── Step definitions ────────────────────────────────────────────────────────
-// Add / remove steps here. The engine handles missing selectors gracefully.
-const TOUR_STEPS = [
-  {
-    selector: '.nav-link[data-tour="resume"]',
-    content:
-      "📄 Start building your professional resume here. Create, edit, and download your resume instantly!",
-    preferredPosition: "bottom",
-  },
-  {
-    selector: ".cta-content",
-    content:
-      "🎯 Practice AI-powered interviews here. Get real-time feedback and improve your interview skills!",
-    preferredPosition: "left",
-  },
-  {
-    selector: ".widgets-row",
-    content:
-      "👤 Track your progress, view analytics, and manage your interview sessions from these cards!",
-    preferredPosition: "top",
-  },
-];
-
-// ─── DOM readiness helper ────────────────────────────────────────────────────
-// Waits for every selector in `selectors` to appear in the DOM.
-// Uses MutationObserver (no polling). Resolves after `timeoutMs` with whatever
-// was found so the caller can decide whether to proceed with partial steps.
-function waitForElements(selectors, timeoutMs = 8000) {
-  return new Promise((resolve) => {
-    // Build a mutable map so we can update it inside the observer
-    const found = new Map(
-      selectors.map((sel) => [sel, document.querySelector(sel)])
-    );
-
-    const allResolved = () => [...found.values()].every(Boolean);
-
-    // Already satisfied — resolve immediately (common case after navigation)
-    if (allResolved()) {
-      resolve(found);
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      observer.disconnect();
-      resolve(found); // partial result — caller filters valid steps
-    }, timeoutMs);
-
-    const observer = new MutationObserver(() => {
-      for (const [sel, el] of found) {
-        if (!el) found.set(sel, document.querySelector(sel));
-      }
-      if (allResolved()) {
-        clearTimeout(timeoutId);
-        observer.disconnect();
-        resolve(found);
-      }
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["class", "id", "data-tour"],
-    });
-  });
-}
-
-// ─── Position calculator ─────────────────────────────────────────────────────
-// Returns { top, left } in viewport coordinates for the floating tooltip.
-const TOOLTIP_W = 340;
-const TOOLTIP_H = 240;
-const GAP = 14; // px between element edge and tooltip
-
-function calculatePosition(targetEl, preferredPosition) {
-  if (!targetEl) return { top: 80, left: 80 };
-
-  const r = targetEl.getBoundingClientRect();
-  const vpW = window.innerWidth;
-  const vpH = window.innerHeight;
-  let top, left;
-
-  switch (preferredPosition) {
-    case "top":
-      top = r.top - TOOLTIP_H - GAP;
-      left = r.left + r.width / 2 - TOOLTIP_W / 2;
-      break;
-    case "left":
-      top = r.top + r.height / 2 - TOOLTIP_H / 2;
-      left = r.left - TOOLTIP_W - GAP;
-      break;
-    case "right":
-      top = r.top + r.height / 2 - TOOLTIP_H / 2;
-      left = r.right + GAP;
-      break;
-    case "bottom":
-    default:
-      top = r.bottom + GAP;
-      left = r.left + r.width / 2 - TOOLTIP_W / 2;
-  }
-
-  // Clamp inside viewport with padding
-  const PAD = 12;
-  left = Math.max(PAD, Math.min(left, vpW - TOOLTIP_W - PAD));
-  top = Math.max(PAD, Math.min(top, vpH - TOOLTIP_H - PAD));
-
-  return { top, left };
-}
-
-// ─── Tour component ───────────────────────────────────────────────────────────
 export default function Tour({ run, setRun }) {
-  const introRef = useRef(null);       // intro.js instance
-  const isMounted = useRef(true);      // guards setState after unmount
-  const validStepsRef = useRef([]);    // steps that passed DOM check
+  const introRef = useRef(null);
+  const stepsRef = useRef([]);
+  const floatRootRef = useRef(null);
+  const [floatingVisible, setFloatingVisible] = useState(false);
 
-  // State consumed by the React-portal tooltip
-  const [tooltipState, setTooltipState] = useState(null);
-
-  // ── Destroy helper ──────────────────────────────────────────────────────────
-  const destroyTour = useCallback(() => {
-    if (introRef.current) {
-      try { introRef.current.exit(true); } catch (_) { /* already destroyed */ }
-      introRef.current = null;
-    }
-    if (isMounted.current) setTooltipState(null);
-  }, []);
-
-  // ── Mount / unmount guard ───────────────────────────────────────────────────
   useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-      destroyTour();
-    };
-  }, [destroyTour]);
+    if (run) {
+      console.log("Tour starting with Intro.js...");
 
-  // ── Main tour effect ────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!run) {
-      destroyTour();
-      return;
-    }
+      const tourSteps = [
+        {
+          element: '.nav-link[data-tour="resume"]',
+          intro: "📄 Start building your professional resume here. Create, edit, and download your resume instantly!",
+          position: "bottom",
+        },
+        {
+          element: '.cta-content',
+          intro: "🎯 Practice AI-powered interviews here. Get real-time feedback and improve your interview skills!",
+          position: "left",
+        },
+        {
+          element: '.widgets-row',
+          intro: "👤 Track your progress, view analytics, and manage your interview sessions from these cards!",
+          position: "top",
+        },
+      ];
 
-    // Abort flag prevents state updates if effect re-runs before async resolves
-    let aborted = false;
+      const startIntroTour = (steps) => {
+        if (introRef.current) {
+          introRef.current.exit();
+        }
 
-    const initTour = async () => {
-      const selectors = TOUR_STEPS.map((s) => s.selector);
-      const foundMap = await waitForElements(selectors, 8000);
+        const intro = introJs();
+        introRef.current = intro;
 
-      if (aborted || !isMounted.current) return;
-
-      // Keep only steps whose target element was actually found
-      const validSteps = TOUR_STEPS.filter(
-        (step) => foundMap.get(step.selector) != null
-      );
-
-      if (validSteps.length === 0) {
-        console.warn("[Tour] No target elements found — aborting tour.");
-        setRun(false);
-        return;
-      }
-
-      const missing = TOUR_STEPS.filter(
-        (step) => foundMap.get(step.selector) == null
-      );
-      if (missing.length > 0) {
-        console.warn(
-          "[Tour] Skipping steps with missing selectors:",
-          missing.map((s) => s.selector)
-        );
-      }
-
-      validStepsRef.current = validSteps;
-
-      // ── Build intro.js ──────────────────────────────────────────────────────
-      // We only use intro.js for overlay + highlight.
-      // The tooltip is rendered via our own React portal below.
-      const intro = introJs();
-      introRef.current = intro;
-
-      intro.setOptions({
-        steps: validSteps.map((step) => ({
-          element: step.selector,
-          // Non-empty string required; our CSS hides intro.js's tooltip UI
-          intro: " ",
-          position: step.preferredPosition,
-        })),
-        showProgress: false,
-        showBullets: false,
-        showButtons: false,
-        exitOnOverlayClick: false,
-        exitOnEsc: true,
-        disableInteraction: false,
-        overlayOpacity: 0.55,
-        tooltipClass: "tour-hidden-tooltip",
-        highlightClass: "tour-custom-highlight",
-        scrollToElement: true,
-      });
-
-      // ── Sync React tooltip with intro.js step changes ───────────────────────
-      const syncTooltip = (targetEl) => {
-        if (!isMounted.current) return;
-
-        // Match target element back to our step definition
-        const stepIdx = validSteps.findIndex((step) => {
-          const el = document.querySelector(step.selector);
-          return el === targetEl;
+        intro.setOptions({
+          steps: steps,
+          showProgress: true,
+          showBullets: false,
+          showButtons: false,        // we use our own buttons
+          showStepNumbers: true,
+          exitOnOverlayClick: false,
+          exitOnEsc: true,
+          disableInteraction: true,
+          overlayOpacity: 0.5,
+          tooltipClass: 'custom-tooltip',
+          highlightClass: 'custom-highlight',
         });
 
-        const idx = stepIdx >= 0 ? stepIdx : 0;
-        const step = validSteps[idx];
-        if (!step) return;
+        // Custom tooltip rendering
+        intro.onafterchange(() => {
+          const tooltipEl = document.querySelector('.introjs-tooltip');
+          if (!tooltipEl) return;
 
-        const el = document.querySelector(step.selector);
-        setTooltipState({
-          step,
-          position: calculatePosition(el, step.preferredPosition),
-          currentStep: idx,
-          totalSteps: validSteps.length,
+          const root = createRoot(tooltipEl);
+          const currentIndex = intro._currentStep; // 0‑based
+          const currentStepData = stepsRef.current[currentIndex];
+
+          root.render(
+            <MascotTooltip
+              step={currentStepData}
+              intro={intro}
+              currentStep={currentIndex}
+              totalSteps={stepsRef.current.length}
+              onNext={() => intro.nextStep()}
+              onPrev={() => intro.previousStep()}
+              onSkip={() => intro.exit()}
+              onDone={() => intro.exit()}
+            />
+          );
+        });
+
+        intro.start();
+
+        // Show floating Prev/Next buttons
+        setFloatingVisible(true);
+
+        intro.onexit(() => {
+          console.log("Tour completed or exited");
+          setRun(false);
+          setFloatingVisible(false);
+          introRef.current = null;
+          cleanupFloatingButtons();
+        });
+
+        intro.oncomplete(() => {
+          console.log("Tour completed successfully");
+          localStorage.setItem("seen_home_tour", "true");
+          setRun(false);
+          setFloatingVisible(false);
+          introRef.current = null;
+          cleanupFloatingButtons();
         });
       };
 
-      intro.onafterchange(syncTooltip);
-
-      intro.onexit(() => {
-        if (isMounted.current) {
-          setTooltipState(null);
-          setRun(false);
+      const verifyTargets = () => {
+        const validSteps = [];
+        for (let i = 0; i < tourSteps.length; i++) {
+          const step = tourSteps[i];
+          const element = document.querySelector(step.element);
+          if (element) {
+            console.log(`✅ Step ${i + 1} target found: ${step.element}`);
+            validSteps.push(step);
+          } else {
+            console.warn(`❌ Step ${i + 1} target NOT found: ${step.element}`);
+          }
         }
-        introRef.current = null;
-      });
 
-      intro.oncomplete(() => {
-        localStorage.setItem("seen_home_tour", "true");
-        if (isMounted.current) {
-          setTooltipState(null);
+        if (validSteps.length === 0) {
+          console.error("No valid targets found, tour cancelled");
           setRun(false);
+        } else {
+          console.log(`Starting tour with ${validSteps.length} steps`);
+          stepsRef.current = validSteps;
+          startIntroTour(validSteps);
         }
-        introRef.current = null;
-      });
+      };
 
-      intro.start();
-      // onafterchange fires for step 0 during start(); no manual sync needed.
+      // Give DOM time to render
+      setTimeout(verifyTargets, 300);
+    }
+  }, [run, setRun]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (introRef.current) {
+        introRef.current.exit();
+        introRef.current = null;
+      }
+      cleanupFloatingButtons();
     };
+  }, []);
 
-    initTour();
-    return () => { aborted = true; };
-  }, [run, setRun, destroyTour]);
+  // Floating Prev/Next buttons (pure portal)
+  useEffect(() => {
+    if (floatingVisible) {
+      // Create a container for the floating buttons
+      const floatContainer = document.createElement("div");
+      floatContainer.id = "tour-floating-nav";
+      document.body.appendChild(floatContainer);
+      const root = createRoot(floatContainer);
+      floatRootRef.current = root;
 
-  // ── Navigation handlers passed down to MascotTooltip ───────────────────────
-  const handleNext = useCallback(() => introRef.current?.nextStep(), []);
-  const handlePrev = useCallback(() => introRef.current?.previousStep(), []);
-  const handleSkip = useCallback(() => introRef.current?.exit(), []);
+      const FloatingNav = () => {
+        const [, forceUpdate] = useState(0);
+        // Refresh on step change
+        useEffect(() => {
+          if (!introRef.current) return;
+          const handler = () => forceUpdate((n) => n + 1);
+          introRef.current.onafterchange(handler);
+          return () => {
+            if (introRef.current) introRef.current.onafterchange(() => {});
+          };
+        }, []);
 
-  // ── Render ──────────────────────────────────────────────────────────────────
-  return (
-    <>
-      {/* Scoped styles: hide intro.js's built-in tooltip shell */}
-      <style>{`
-        /* Hide intro.js tooltip content — we replace it with our portal */
-        .tour-hidden-tooltip {
-          background: transparent !important;
-          box-shadow: none !important;
-          border: none !important;
-          padding: 0 !important;
-          min-width: 0 !important;
-          min-height: 0 !important;
-          overflow: hidden !important;
-          width: 0 !important;
-          height: 0 !important;
-        }
-        .tour-hidden-tooltip .introjs-tooltip-header,
-        .tour-hidden-tooltip .introjs-tooltiptext,
-        .tour-hidden-tooltip .introjs-tooltipbuttons,
-        .tour-hidden-tooltip .introjs-progress,
-        .tour-hidden-tooltip .introjs-arrow {
-          display: none !important;
-        }
+        const currentStep = introRef.current?._currentStep ?? 0;
+        const totalSteps = stepsRef.current?.length ?? 0;
 
-        /* Custom highlight ring */
-        .introjs-helperLayer {
-          border-radius: 10px !important;
-          box-shadow:
-            0 0 0 4000px rgba(0, 0, 0, 0.55),
-            0 0 0 3px rgba(34, 197, 94, 0.8),
-            0 0 20px 4px rgba(34, 197, 94, 0.35) !important;
-          transition: all 0.3s ease !important;
-        }
-        .introjs-fixedTooltip,
-        .introjs-relativeTooltip {
-          transition: all 0.3s ease !important;
-        }
-      `}</style>
+        return (
+          <div
+            style={{
+              position: "fixed",
+              bottom: 20,
+              right: 20,
+              display: "flex",
+              gap: 12,
+              zIndex: 100000,
+            }}
+          >
+            <button
+              onClick={() => introRef.current?.previousStep()}
+              disabled={currentStep === 0}
+              style={{
+                background: "rgba(255,255,255,0.15)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "white",
+                padding: "8px 18px",
+                borderRadius: "12px",
+                fontWeight: 600,
+                cursor: currentStep === 0 ? "not-allowed" : "pointer",
+                opacity: currentStep === 0 ? 0.5 : 1,
+                transition: "0.2s",
+              }}
+            >
+              ← Prev
+            </button>
+            <button
+              onClick={() => introRef.current?.nextStep()}
+              disabled={currentStep >= totalSteps - 1}
+              style={{
+                background: "rgba(34,197,94,0.2)",
+                border: "1px solid #22c55e",
+                color: "white",
+                padding: "8px 18px",
+                borderRadius: "12px",
+                fontWeight: 600,
+                cursor: currentStep >= totalSteps - 1 ? "not-allowed" : "pointer",
+                opacity: currentStep >= totalSteps - 1 ? 0.5 : 1,
+                transition: "0.2s",
+              }}
+            >
+              Next →
+            </button>
+          </div>
+        );
+      };
 
-      {/* Portal-rendered tooltip — lives outside intro.js DOM entirely */}
-      {tooltipState &&
-        createPortal(
-          <MascotTooltip
-            step={tooltipState.step}
-            position={tooltipState.position}
-            currentStep={tooltipState.currentStep}
-            totalSteps={tooltipState.totalSteps}
-            onNext={handleNext}
-            onPrev={handlePrev}
-            onSkip={handleSkip}
-            onDone={handleSkip}
-          />,
-          document.body
-        )}
-    </>
-  );
+      root.render(<FloatingNav />);
+
+      return () => {
+        root.unmount();
+        document.body.removeChild(floatContainer);
+      };
+    }
+  }, [floatingVisible]);
+
+  const cleanupFloatingButtons = () => {
+    if (floatRootRef.current) {
+      floatRootRef.current.unmount();
+      const container = document.getElementById("tour-floating-nav");
+      if (container) container.remove();
+      floatRootRef.current = null;
+    }
+  };
+
+  // Custom CSS
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .custom-highlight {
+        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5), 0 0 15px 5px rgba(34, 197, 94, 0.5) !important;
+        border-radius: 8px !important;
+      }
+      .introjs-helperLayer {
+        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5), 0 0 15px 5px rgba(34, 197, 94, 0.3) !important;
+        border-radius: 8px !important;
+      }
+      .introjs-tooltip {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(17, 28, 51, 0.95)) !important;
+        min-width: 300px !important;
+        max-width: 320px !important;
+      }
+      .introjs-button {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
+  return null;
 }
