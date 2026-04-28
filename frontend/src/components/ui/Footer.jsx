@@ -53,7 +53,7 @@ export default function Footer() {
             </div>
 
             {/* SOCIALS */}
-            <div className="footer__socials">
+            {/* <div className="footer__socials">
               <p className="footer__col-heading">Connect</p>
               <div className="socials-horizontal">
                 <a
@@ -76,7 +76,7 @@ export default function Footer() {
                   <span>TikTok</span>
                 </a>
               </div>
-            </div>
+            </div> */}
 
             {/* NEWSLETTER */}
             <div className="footer__newsletter">

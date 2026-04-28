@@ -260,8 +260,7 @@ const LandingFooter = () => {
         </div>
 
         {/* ── MIDDLE (2 COLUMNS) ── */}
-        <div style={styles.middle}>
-          {/* LINKS COLUMN */}
+        {/* <div style={styles.middle}>
           <div>
             <div style={styles.columnTitle}>Explore</div>
             <div style={styles.links}>
@@ -273,7 +272,6 @@ const LandingFooter = () => {
             </div>
           </div>
 
-          {/* SOCIALS COLUMN */}
           <div>
             <div style={styles.columnTitle}>Socials</div>
             <div style={styles.socials}>
@@ -304,7 +302,7 @@ const LandingFooter = () => {
               </a>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* ── RIGHT ── */}
         <div style={styles.ctaBox}>
