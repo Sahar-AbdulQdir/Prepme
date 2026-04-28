@@ -262,8 +262,8 @@ export default function Press() {
     document.head.appendChild(link);
   }, []);
 
-  const INSTA_URL   = "https://www.instagram.com/prepme.io";
-  const TIKTOK_URL  = "https://www.tiktok.com/@prepme.io";
+  // const INSTA_URL   = "https://www.instagram.com/prepme.io";
+  // const TIKTOK_URL  = "https://www.tiktok.com/@prepme.io";
 
   return (
     <div style={{ fontFamily: "'Sora', 'Istok Web', sans-serif", background: COLORS.bg, color: COLORS.text, minHeight: "100vh", overflowX: "hidden" }}>
