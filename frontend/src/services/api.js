@@ -1,4 +1,4 @@
-const API_BASE = "https://prepme-fp9q.onrender.com";
+const API_BASE = "https://prepme1.onrender.com";
 // const API_BASE = "http://localhost:3002";
 // Helper: attach token automatically
 export function authHeaders() {
