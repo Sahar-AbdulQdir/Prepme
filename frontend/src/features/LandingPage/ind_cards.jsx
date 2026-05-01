@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import {FiDollarSign ,FiLayout, FiBox, FiCode, FiTrendingUp, FiStar, FiSun, FiShield, FiTool, FiBriefcase, FiPieChart } from "react-icons/fi";
+import {FiDollarSign ,FiLayout, FiBox, FiCode, FiStar, FiSun, FiShield, FiTool, FiBriefcase, FiPieChart } from "react-icons/fi";
 
 const industries = [
   { 
@@ -49,12 +49,6 @@ const industries = [
     name: "Finance", 
     sub: "Banking, accounting & investments.", 
     Icon: FiDollarSign 
-  },
-  { 
-    id: "mk", 
-    name: "Marketing", 
-    sub: "Growth, content, brand strategy & campaigns.", 
-    Icon: FiTrendingUp 
   },
 ];
 
