@@ -105,8 +105,8 @@ function pickQuote(lastIndex) {
   return { idx, quote: QUOTES[idx] };
 }
 
-const REPEAT_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
-const FIRST_SHOW_DELAY_MS = 1000;
+const REPEAT_INTERVAL_MS = 7 * 60 * 1000; // 7 minutes
+const FIRST_SHOW_DELAY_MS = 5000;
 const AUTO_HIDE_MS = 5000;
 
 export default function MascotQuote({ user }) {

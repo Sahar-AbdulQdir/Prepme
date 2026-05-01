@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import {FiDollarSign ,FiLayout, FiBox, FiCode, FiStar, FiSun, FiShield, FiTool, FiBriefcase, FiPieChart } from "react-icons/fi";
+import {FiBox, FiCode, FiStar, FiSun, FiShield, FiTool, FiBriefcase, FiPieChart } from "react-icons/fi";
 
 const industries = [
   { 
@@ -38,18 +38,7 @@ const industries = [
     sub: "Roadmaps, discovery, delivery & systems thinking.", 
     Icon: FiBox 
   },
-  { 
-    id: "ux", 
-    name: "UX/UI Design", 
-    sub: "Research, prototyping & user experience design.", 
-    Icon: FiLayout 
-  },
-  { 
-    id: "fn", 
-    name: "Finance", 
-    sub: "Banking, accounting & investments.", 
-    Icon: FiDollarSign 
-  },
+ 
 ];
 
 function getCardPositions(stageW, stageH, isMobile) {
