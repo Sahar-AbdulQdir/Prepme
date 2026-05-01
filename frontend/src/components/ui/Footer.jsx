@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-// import { FaInstagram, FaTiktok } from "react-icons/fa";
+import { FaInstagram, FaTiktok } from "react-icons/fa";
 import useNewsletter from "../../hooks/useNewsletter";
 import NewsletterPopup from "./newsLettersPopup";
 import Logo from "../../assets/Images/Plogo.png";
@@ -53,7 +53,7 @@ export default function Footer() {
             </div>
 
             {/* SOCIALS */}
-            {/* <div className="footer__socials">
+            <div className="footer__socials">
               <p className="footer__col-heading">Connect</p>
               <div className="socials-horizontal">
                 <a
@@ -76,7 +76,7 @@ export default function Footer() {
                   <span>TikTok</span>
                 </a>
               </div>
-            </div> */}
+            </div>
 
             {/* NEWSLETTER */}
             <div className="footer__newsletter">

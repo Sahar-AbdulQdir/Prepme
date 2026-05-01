@@ -2,19 +2,19 @@
 import React from "react";
 
 import Logo from "../../assets/Images/Plogo.png";
-// import { FaInstagram, FaTiktok } from "react-icons/fa6";
-// import { Link } from "react-router-dom";
+import { FaInstagram, FaTiktok } from "react-icons/fa6";
+import { Link } from "react-router-dom";
 import useNewsletter from "../../hooks/useNewsletter";
 import NewsletterPopup from "../../components/ui/newsLettersPopup";
 <link href="https://fonts.googleapis.com/css2?family=Istok+Web:wght@400;700&display=swap" rel="stylesheet"></link>
 
-// const FOOTER_LINKS = [
-//   { label: "Features", href: "/#MainFeatures" },
-//   { label: "Pricing", href: "/#LandingPrices" },
-//   { label: "How it works", href: "/#how-it-works" },
-//   { label: "Login", href: "/login" },
-//   { label: "Media Press kit", href: "/press" },
-// ];
+const FOOTER_LINKS = [
+  { label: "Features", href: "/#MainFeatures" },
+  { label: "Pricing", href: "/#LandingPrices" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "Login", href: "/login" },
+  { label: "Media Press kit", href: "/press" },
+];
 
 const styles = {
   Landingfooter: {
@@ -260,7 +260,7 @@ const LandingFooter = () => {
         </div>
 
         {/* ── MIDDLE (2 COLUMNS) ── */} 
-         {/* <div style={styles.middle}>
+         <div style={styles.middle}>
           <div>
             <div style={styles.columnTitle}>Explore</div>
             <div style={styles.links}>
@@ -302,7 +302,7 @@ const LandingFooter = () => {
               </a>
             </div>
           </div>
-        </div> */}
+        </div>
 
         {/* ── RIGHT ── */}
         <div style={styles.ctaBox}>
