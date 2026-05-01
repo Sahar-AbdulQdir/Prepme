@@ -259,8 +259,8 @@ const LandingFooter = () => {
           </p>
         </div>
 
-        {/* ── MIDDLE (2 COLUMNS) ── */}
-        {/* <div style={styles.middle}>
+        {/* ── MIDDLE (2 COLUMNS) ── */} 
+         {/* <div style={styles.middle}>
           <div>
             <div style={styles.columnTitle}>Explore</div>
             <div style={styles.links}>
