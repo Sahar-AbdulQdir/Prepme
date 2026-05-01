@@ -1,13 +1,61 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { FiCode, FiTrendingUp, FiShoppingBag, FiActivity, FiBarChart2, FiBook, FiStar, FiSun } from "react-icons/fi";
+import {FiDollarSign ,FiLayout, FiBox, FiCode, FiTrendingUp, FiStar, FiSun, FiShield, FiTool, FiBriefcase, FiPieChart } from "react-icons/fi";
 
 const industries = [
-  { id: "sw", name: "Software Developer", sub: "Algorithms, system design & coding challenges.", Icon: FiCode },
-  { id: "mk", name: "Marketing Manager",  sub: "Campaign strategy, analytics & leadership.",   Icon: FiTrendingUp },
-  { id: "rt", name: "Retail Associate",   sub: "Customer service & conflict resolution.",       Icon: FiShoppingBag },
-  { id: "hc", name: "Healthcare",         sub: "Patient care, clinical knowledge & empathy.",   Icon: FiActivity },
-  { id: "ba", name: "Business Analyst",   sub: "Data decisions & stakeholder management.",      Icon: FiBarChart2 },
-  { id: "ed", name: "Education",          sub: "Teaching philosophy & classroom scenarios.",    Icon: FiBook },
+  { 
+    id: "sw", 
+    name: "Software", 
+    sub: "Algorithms, system design, fullstack & DevOps basics.", 
+    Icon: FiCode 
+  },
+  { 
+    id: "cs", 
+    name: "Cybersecurity", 
+    sub: "Pen testing, SOC operations & threat analysis.", 
+    Icon: FiShield 
+  },
+  { 
+    id: "dev", 
+    name: "Development", 
+    sub: "Frontend & backend web/app development.", 
+    Icon: FiTool 
+  },
+  { 
+    id: "bu", 
+    name: "Business", 
+    sub: "Operations, management & strategy.", 
+    Icon: FiBriefcase 
+  },
+  { 
+    id: "ds", 
+    name: "Data Science", 
+    sub: "ML, analytics & data-driven decision making.", 
+    Icon: FiPieChart 
+  },
+  { 
+    id: "pr", 
+    name: "Product", 
+    sub: "Roadmaps, discovery, delivery & systems thinking.", 
+    Icon: FiBox 
+  },
+  { 
+    id: "ux", 
+    name: "UX/UI Design", 
+    sub: "Research, prototyping & user experience design.", 
+    Icon: FiLayout 
+  },
+  { 
+    id: "fn", 
+    name: "Finance", 
+    sub: "Banking, accounting & investments.", 
+    Icon: FiDollarSign 
+  },
+  { 
+    id: "mk", 
+    name: "Marketing", 
+    sub: "Growth, content, brand strategy & campaigns.", 
+    Icon: FiTrendingUp 
+  },
 ];
 
 function getCardPositions(stageW, stageH, isMobile) {
