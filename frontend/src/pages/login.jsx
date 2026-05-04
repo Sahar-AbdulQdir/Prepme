@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { api } from "../services/api";
 import SplashCursor from "../components/effects/splashCursor";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import emailjs from "@emailjs/browser";
-// ── change this to your deployed API URL in production ──
-// const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
@@ -465,8 +463,6 @@ const GREETINGS = [
   (name) => `Let's get started, ${name}!`,
 ];
 
-
-
 // ── Icons ──────────────────────────────────────
 const EyeIcon = ({ open }) =>
   open ? (
@@ -545,8 +541,13 @@ const ArrowRightIcon = () => (
 // ──────────────────────────────────────────────
 export default function LoginPage({ onAuthSuccess }) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // ── Read ?mode= param to set initial form state ──
+  const initialIsSignIn = new URLSearchParams(location.search).get("mode") !== "signup";
+
   const [showPw, setShowPw]         = useState(false);
-  const [isSignIn, setIsSignIn]     = useState(false);
+  const [isSignIn, setIsSignIn]     = useState(initialIsSignIn);
   const [email, setEmail]           = useState("");
   const [password, setPassword]     = useState("");
   const [username, setUsername]     = useState("");
@@ -555,29 +556,30 @@ export default function LoginPage({ onAuthSuccess }) {
   const [successMsg, setSuccessMsg] = useState("");
   const greetingIndexRef            = useRef(0);
 
-const sendWelcomeEmail = async (user) => {
-  try {
-    const firstName = user?.name?.trim().split(" ")[0] || "there";
+  // ── Sync form mode if the URL query param changes (e.g. back/forward nav) ──
+  useEffect(() => {
+    const mode = new URLSearchParams(location.search).get("mode");
+    setIsSignIn(mode !== "signup");
+  }, [location.search]);
 
-    const greeting =
-      GREETINGS[Math.floor(Math.random() * GREETINGS.length)](firstName);
-
-    await emailjs.send(
-      "service_pun7lni",
-      "template_wnzm7jh",
-      {
-        to_name: user.name,
-        user_email: user.email,
-        greeting: greeting,
-      },
-      "IbRGONvwhFwrv-fQR"
-    );
-  } catch (err) {
-    console.error("Email failed:", err);
-  }
-};
-
-
+  const sendWelcomeEmail = async (user) => {
+    try {
+      const firstName = user?.name?.trim().split(" ")[0] || "there";
+      const greeting = GREETINGS[Math.floor(Math.random() * GREETINGS.length)](firstName);
+      await emailjs.send(
+        "service_pun7lni",
+        "template_wnzm7jh",
+        {
+          to_name: user.name,
+          user_email: user.email,
+          greeting: greeting,
+        },
+        "IbRGONvwhFwrv-fQR"
+      );
+    } catch (err) {
+      console.error("Email failed:", err);
+    }
+  };
 
   useEffect(() => {
     const id = "lp-styles";
@@ -595,22 +597,15 @@ const sendWelcomeEmail = async (user) => {
     setSuccessMsg("");
   }, [isSignIn]);
 
-const getTitle = () => {
-  if (isSignIn) return "Welcome back";
-
-  const trimmed = username.trim();
-
-  if (trimmed.length > 0) {
-    const firstName = trimmed.split(" ")[0];
-
-    const greeting =
-      GREETINGS[Math.floor(Math.random() * GREETINGS.length)](firstName);
-
-    return greeting;
-  }
-
-  return "Create an account";
-};
+  const getTitle = () => {
+    if (isSignIn) return "Welcome back";
+    const trimmed = username.trim();
+    if (trimmed.length > 0) {
+      const firstName = trimmed.split(" ")[0];
+      return GREETINGS[Math.floor(Math.random() * GREETINGS.length)](firstName);
+    }
+    return "Create an account";
+  };
 
   const getSub = () => {
     if (isSignIn)
@@ -631,10 +626,9 @@ const getTitle = () => {
         password,
       }),
     });
-
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Registration failed.");
-    return data; // { token, user }
+    return data;
   };
 
   const login = async () => {
@@ -646,20 +640,17 @@ const getTitle = () => {
         password,
       }),
     });
-
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Login failed.");
-    return data; // { token, user }
+    return data;
   };
 
-
   // ── Form submit ────────────────────────────
-   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const handleAuthAction = async () => {
     setError("");
     setSuccessMsg("");
 
-    // Basic client-side validation
     if (!isSignIn && !username.trim()) {
       setError("Please enter your name.");
       return;
@@ -676,12 +667,11 @@ const getTitle = () => {
     setLoading(true);
     try {
       const data = isSignIn ? await login() : await register();
-      
+
       if (!isSignIn) {
         sendWelcomeEmail(data.user);
       }
 
-      // Persist token for subsequent API calls
       localStorage.setItem("prepme_token", data.token);
       localStorage.setItem("prepme_user", JSON.stringify(data.user));
 
@@ -691,7 +681,6 @@ const getTitle = () => {
           : `Account created! Welcome, ${data.user.name}!`
       );
 
-      // Give the success message a moment to show, then notify parent
       setTimeout(() => {
         if (onAuthSuccess) onAuthSuccess(data);
       }, 900);
@@ -702,43 +691,45 @@ const getTitle = () => {
     }
   };
 
+  // ── Toggle mode (also updates URL so browser history stays clean) ──
   const toggleMode = () => {
     greetingIndexRef.current += 1;
-    setIsSignIn((prev) => !prev);
+    const nextMode = isSignIn ? "signup" : "signin";
+    navigate(`/login?mode=${nextMode}`, { replace: true });
     setEmail("");
     setPassword("");
     setUsername("");
   };
 
-  // Allow Enter key to submit
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !loading) handleAuthAction();
   };
 
   return (
     <div className="lp-wrap">
-                     <SplashCursor
-    SIM_RESOLUTION={224}
-    DYE_RESOLUTION={640}
-    DENSITY_DISSIPATION={2.5}
-    VELOCITY_DISSIPATION={2}
-    PRESSURE={0.6}
-    CURL={0}
-    SPLAT_RADIUS={0.2}
-    SPLAT_FORCE={3000}
-    COLOR_UPDATE_SPEED={8}
-  />
+      <SplashCursor
+        SIM_RESOLUTION={224}
+        DYE_RESOLUTION={640}
+        DENSITY_DISSIPATION={2.5}
+        VELOCITY_DISSIPATION={2}
+        PRESSURE={0.6}
+        CURL={0}
+        SPLAT_RADIUS={0.2}
+        SPLAT_FORCE={3000}
+        COLOR_UPDATE_SPEED={8}
+      />
+
       {/* ── Left panel ── */}
       <div className="lp-left">
         <div className="lp-logo">
-  <span
-    className="lp-logo-text"
-    style={{ cursor: "pointer" }}
-    onClick={() => navigate("/")}
-  >
-    PrepMe
-  </span>
-</div>
+          <span
+            className="lp-logo-text"
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/")}
+          >
+            PrepMe
+          </span>
+        </div>
         <div className="lp-left-body">
           <p className="lp-eyebrow">AI Interview Coach</p>
           <h1 className="lp-headline">
@@ -757,7 +748,6 @@ const getTitle = () => {
           <h2 className="lp-title">{getTitle()}</h2>
           <p className="lp-sub">{getSub()}</p>
 
-          {/* Error / Success banners */}
           {error      && <div className="lp-error">⚠ {error}</div>}
           {successMsg && <div className="lp-success">✓ {successMsg}</div>}
 

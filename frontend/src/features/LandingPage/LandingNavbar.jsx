@@ -69,14 +69,14 @@ const LandingNavbar = ({ user }) => {
           <>
             <button
               className="L-login-link"
-              onClick={() => handleNavigate("/login")}
+              onClick={() => handleNavigate("/login?mode=signin")}
             >
               Log In
             </button>
 
             <button
               className="L-glow-on-hover L-signup"
-              onClick={() => handleNavigate("/login")}
+              onClick={() => handleNavigate("/login?mode=signup")}
             >
               Sign Up
             </button>
@@ -113,13 +113,13 @@ const LandingNavbar = ({ user }) => {
           <div className="L-mobile-auth">
             {!user ? (
               <>
-                <button onClick={() => handleNavigate("/login")}>
+                <button onClick={() => handleNavigate("/login?mode=signin")}>
                   Log In
                 </button>
 
                 <button
                   className="L-glow-on-hover L-mobile-signup"
-                  onClick={() => handleNavigate("/login")}
+                  onClick={() => handleNavigate("/login?mode=signup")}
                 >
                   Sign Up
                 </button>

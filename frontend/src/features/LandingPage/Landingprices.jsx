@@ -114,7 +114,7 @@ export default function LandingCards() {
             <hr className="landing-line" />
             
             <div className="landing-price-container">
-              <span className="landing-price-amount">$29</span>
+              <span className="landing-price-amount">$25</span>
               <span className="landing-price-period">/month</span>
             </div>
             <div className="landing-savings-badge">Save 20% annually</div>
